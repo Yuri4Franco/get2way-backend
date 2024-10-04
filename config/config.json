@@ -2,21 +2,21 @@
   "development": {
     "username": "root",
     "password": "root",
-    "database": "get2way",
+    "database": "ga2way_dev",
     "host": "localhost",
     "dialect": "mysql"
   },
   "test": {
     "username": "root",
     "password": "root",
-    "database": "database_test",
+    "database": "ga2way_test",
     "host": "localhost",
     "dialect": "mysql"
   },
   "production": {
     "username": "root",
     "password": "root",
-    "database": "database_production",
+    "database": "ga2way_production",
     "host": "localhost",
     "dialect": "mysql"
   }

@@ -1,60 +1,60 @@
 const { projetoDTO } = require('../dtos/projetoDTO');
-const   Projeto = require('../models/projetoModel');
-const Programa = require('../models/programaModel');
-const Rota = require('../models/rotaModel');
+const Projeto = require('../models').Projeto;
+const Programa = require('../models').Programa;
+const Rota = require('../models').Rota;
 
 // Tela Inicial da Empresa: Lista de Projetos
 const getProjetosByEmpresaId = async (req, res) => {
-    const { empresa_id } = req.params;
-    try {
-        const rotas = await Rota.findAll({
-            where: { empresa_id: empresa_id },
-            include: [
-                {
-                    model: Programa,
-                    include: [
-                        {
-                            model: Projeto
-                        }
-                    ]
-                }
-            ]
-        });
-        if (rotas.length === 0) {
-            return res.status(404).json({ message: 'Nenhum projeto encontrado para esta empresa.' });
+  const { empresa_id } = req.params;
+  try {
+    const rotas = await Rota.findAll({
+      where: { empresa_id: empresa_id },
+      include: [
+        {
+          model: Programa,
+          include: [
+            {
+              model: Projeto
+            }
+          ]
         }
-
-        const projetos = rotas.flatMap(rota =>
-            rota.Programas.flatMap(programa => programa.Projetos)
-        );
-        res.status(200).json(projetos);
-    } catch (error) {
-        res.status(500).json({ error: 'Erro ao buscar projetos para a empresa.' });
+      ]
+    });
+    if (rotas.length === 0) {
+      return res.status(404).json({ message: 'Nenhum projeto encontrado para esta empresa.' });
     }
+
+    const projetos = rotas.flatMap(rota =>
+      rota.Programas.flatMap(programa => programa.Projetos)
+    );
+    res.status(200).json(projetos);
+  } catch (error) {
+    res.status(500).json({ error: 'Erro ao buscar projetos para a empresa.' });
+  }
 };
 
 
- // GET /projetos/programa/:programa_id
+// Filtro de projetos por programas
 const getProjetosByProgramaId = async (req, res) => {
-    const { programa_id } = req.params;
-    try {
-      // Buscar todos os projetos associados ao programa
-      const projetos = await Projeto.findAll({
-        where: { programa_id: programa_id }
-      });
-  
-      if (projetos.length === 0) {
-        return res.status(404).json({ message: 'Nenhum projeto encontrado para este programa.' });
-      }
-  
-      res.status(200).json(projetos);
-    } catch (error) {
-      res.status(500).json({ error: 'Erro ao buscar projetos pelo programa.' });
-    }
-  };
+  const { programa_id } = req.params;
+  try {
+    // Buscar todos os projetos associados ao programa
+    const projetos = await Projeto.findAll({
+      where: { programa_id: programa_id }
+    });
 
- // GET /projetos/rota/:rota_id
- const getProjetosByRotaId = async (req, res) => {
+    if (projetos.length === 0) {
+      return res.status(404).json({ message: 'Nenhum projeto encontrado para este programa.' });
+    }
+
+    res.status(200).json(projetos);
+  } catch (error) {
+    res.status(500).json({ error: 'Erro ao buscar projetos pelo programa.' });
+  }
+};
+
+// Filtro de projeto por rotas
+const getProjetosByRotaId = async (req, res) => {
   const { rota_id } = req.params;
 
   try {
@@ -89,214 +89,223 @@ const getProjetosByProgramaId = async (req, res) => {
   }
 };
 
-  // GET /projetos/rota/:rota_id/programa/:programa_id
+// Filtro de projetos por rotas e programas
 const getProjetosByRotaAndProgramaId = async (req, res) => {
-    const { rota_id, programa_id } = req.params;
-    try {
-      const programas = await Programa.findAll({
-        where: { rota_id: rota_id, id: programa_id },
-        include: [
-          {
-            model: Projeto
-          }
-        ]
-      });
-  
-      if (programas.length === 0) {
-        return res.status(404).json({ message: 'Nenhum projeto encontrado para esta rota e programa.' });
-      }
-  
-      const projetos = programas.flatMap(programa => programa.Projetos);
-  
-      res.status(200).json(projetos);
-    } catch (error) {
-      res.status(500).json({ error: 'Erro ao buscar projetos pela rota e programa.' });
-    }
-  };
-
-  // GET /projetos/status/:status
-const getProjetosByStatus = async (req, res) => {
-    const { status } = req.params;
-    try {
-      const projetos = await Projeto.findAll({
-        where: { status: status }
-      });
-  
-      if (projetos.length === 0) {
-        return res.status(404).json({ message: 'Nenhum projeto encontrado com esse status.' });
-      }
-  
-      res.status(200).json(projetos);
-    } catch (error) {
-      res.status(500).json({ error: 'Erro ao buscar projetos pelo status.' });
-    }
-  };
-  
-// GET /projetos/:id
-const getProjetoById = async (req, res) => {
-    const { id } = req.params;
-    try {
-        const projeto = await Projeto.findByPk(id);
-        if (!projeto) {
-            return res.status(404).json({ message: 'Projeto não encontrado.' });
-        }
-
-        const projetoData = projetoDTO(projeto);
-        res.status(200).json(projetoData);
-    } catch (error) {
-        res.status(500).json({ error: 'Erro ao buscar o projeto.' });
-    }
-};
-
-// POST /projetos// POST /projetos
-const createProjeto = async (req, res) => {
+  const { rota_id, programa_id } = req.params;
   try {
-      // Verificar o corpo da requisição
-      console.log('Request body:', req.body); 
+    const programas = await Programa.findAll({
+      where: { rota_id: rota_id, id: programa_id },
+      include: [
+        {
+          model: Projeto
+        }
+      ]
+    });
 
-      const {
-          nome,
-          descricao,
-          data_inicio,
-          data_fim,
-          justificativas,
-          status,
-          trl,
-          acatech,
-          objsmart,
-          beneficios,
-          produto,
-          requisitos,
-          steakholders,
-          equipe,
-          premissas,
-          grupo_de_entrega,
-          restricoes,
-          riscos,
-          linha_do_tempo,
-          custos,
-          upload,
-          programa_id,
-          impulso_id
-      } = req.body;
+    if (programas.length === 0) {
+      return res.status(404).json({ message: 'Nenhum projeto encontrado para esta rota e programa.' });
+    }
 
-      // Criação do projeto com base nos dados recebidos
-      const novoProjeto = await Projeto.create({
-          nome,
-          descricao,
-          data_inicio,
-          data_fim,
-          justificativas,
-          status,
-          trl,
-          acatech,
-          objsmart,
-          beneficios,
-          produto,
-          requisitos,
-          steakholders,
-          equipe,
-          premissas,
-          grupo_de_entrega,
-          restricoes,
-          riscos,
-          linha_do_tempo,
-          custos,
-          upload,
-          programa_id,
-          impulso_id
-      });
+    const projetos = programas.flatMap(programa => programa.Projetos);
 
-      // Retornar o projeto criado
-      res.status(201).json(novoProjeto);
+    res.status(200).json(projetos);
   } catch (error) {
-      // Captura qualquer erro e envia uma resposta com status 500
-      console.error('Erro ao criar o projeto:', error);
-      res.status(500).json({ error: 'Erro ao criar o projeto.' });
+    res.status(500).json({ error: 'Erro ao buscar projetos pela rota e programa.' });
   }
 };
 
-// PUT /projetos/:id
-const updateProjeto = async (req, res) => {
-    const { id } = req.params;
-    const {
-        nome,
-        descricao,
-        data_inicio,
-        data_fim,
-        justificativas,
-        objsmart,
-        status,
-        trl,
-        acatech,
-        beneficios,
-        produto,
-        requisitos,
-        steakholders,
-        equipe,
-        premissas,
-        grupo_de_entrega,
-        restricoes,
-        riscos,
-        linha_do_tempo,
-        custos,
-        upload,
-        impulso_id,
-        programa_id
+// Filtro de projeto por status
+const getProjetosByStatus = async (req, res) => {
+  const { status } = req.params;
+  try {
+    const projetos = await Projeto.findAll({
+      where: { status: status }
+    });
 
-    } = req.body;
-
-    try {
-        const projeto = await Projeto.findByPk(id);
-        if (!projeto) {
-            return res.status(404).json({ message: 'Projeto não encontrado.' });
-        }
-
-        await projeto.update({
-            nome,
-            descricao,
-            data_inicio,
-            data_fim,
-            justificativas,
-            objsmart,
-            status,
-            trl,
-            acatech,
-            beneficios,
-            produto,
-            requisitos,
-            steakholders,
-            equipe,
-            premissas,
-            grupo_de_entrega,
-            restricoes,
-            riscos,
-            linha_do_tempo,
-            custos,
-            upload,
-            programa_id,
-            impulso_id
-        });
-
-        res.status(200).json(projeto);
-    } catch (error) {
-        res.status(500).json({ error: 'Erro ao atualizar o projeto.' });
+    if (projetos.length === 0) {
+      return res.status(404).json({ message: 'Nenhum projeto encontrado com esse status.' });
     }
+
+    res.status(200).json(projetos);
+  } catch (error) {
+    res.status(500).json({ error: 'Erro ao buscar projetos pelo status.' });
+  }
 };
 
-// DELETE /projetos/:id
-const deleteProjeto = async (req, res) => {
-    const { id } = req.params;
-    try {
-        const projeto = await Projeto.findByPk(id);
-        if (!projeto) {
-            return res.status(404).json({ message: 'Projeto não encontrado.' });
-        }
-        await projeto.destroy();
-        res.status(200).json({ message: 'Projeto deletado com sucesso.' });
-    } catch (error) {
-        res.status(500).json({ error: 'Erro ao deletar o projeto.' });
+// Selecionar o projeto
+const getProjetoById = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const projeto = await Projeto.findByPk(id);
+    if (!projeto) {
+      return res.status(404).json({ message: 'Projeto não encontrado.' });
     }
+    const projetoData = projetoDTO(projeto);
+    res.status(200).json(projetoData);
+  } catch (error) {
+    res.status(500).json({ error: 'Erro ao buscar o projeto.' });
+  }
+};
+
+// Cadastrar um projeto
+const createProjeto = async (req, res) => {
+  try {
+    console.log('Request body:', req.body);
+
+    const {
+      nome,
+      descricao,
+      data_inicio,
+      data_fim,
+      justificativas,
+      status,
+      trl,
+      acatech,
+      objsmart,
+      beneficios,
+      produto,
+      requisitos,
+      steakholders,
+      equipe,
+      premissas,
+      grupo_de_entrega,
+      restricoes,
+      riscos,
+      linha_do_tempo,
+      custos,
+      upload,
+      programa_id,
+      impulso_id
+    } = req.body;
+
+    const novoProjeto = await Projeto.create({
+      nome,
+      descricao,
+      data_inicio,
+      data_fim,
+      justificativas,
+      status,
+      trl,
+      acatech,
+      objsmart,
+      beneficios,
+      produto,
+      requisitos,
+      steakholders,
+      equipe,
+      premissas,
+      grupo_de_entrega,
+      restricoes,
+      riscos,
+      linha_do_tempo,
+      custos,
+      upload,
+      programa_id,
+      impulso_id
+    });
+
+    res.status(201).json(novoProjeto);
+  } catch (error) {
+    console.error('Erro ao criar o projeto:', error);
+    res.status(500).json({ error: 'Erro ao criar o projeto.' });
+  }
+};
+
+// Atualizar um projeto
+const updateProjeto = async (req, res) => {
+  const { id } = req.params;
+  const {
+    nome,
+    descricao,
+    data_inicio,
+    data_fim,
+    justificativas,
+    objsmart,
+    status,
+    trl,
+    acatech,
+    beneficios,
+    produto,
+    requisitos,
+    steakholders,
+    equipe,
+    premissas,
+    grupo_de_entrega,
+    restricoes,
+    riscos,
+    linha_do_tempo,
+    custos,
+    upload,
+    impulso_id,
+    programa_id
+
+  } = req.body;
+
+  try {
+    const projeto = await Projeto.findByPk(id);
+    if (!projeto) {
+      return res.status(404).json({ message: 'Projeto não encontrado.' });
+    }
+
+    await projeto.update({
+      nome,
+      descricao,
+      data_inicio,
+      data_fim,
+      justificativas,
+      objsmart,
+      status,
+      trl,
+      acatech,
+      beneficios,
+      produto,
+      requisitos,
+      steakholders,
+      equipe,
+      premissas,
+      grupo_de_entrega,
+      restricoes,
+      riscos,
+      linha_do_tempo,
+      custos,
+      upload,
+      programa_id,
+      impulso_id
+    });
+
+    res.status(200).json(projeto);
+  } catch (error) {
+    res.status(500).json({ error: 'Erro ao atualizar o projeto.' });
+  }
+};
+
+// Deletar um projeto
+const deleteProjeto = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const projeto = await Projeto.findByPk(id);
+    if (!projeto) {
+      return res.status(404).json({ message: 'Projeto não encontrado.' });
+    }
+    await projeto.destroy();
+    res.status(200).json({ message: 'Projeto deletado com sucesso.' });
+  } catch (error) {
+    res.status(500).json({ error: 'Erro ao deletar o projeto.' });
+  }
+};
+
+const ListarTodosProjetos = async (req, res) => {
+  try {
+    // Busca todos os projetos no banco de dados
+    const projetos = await Projeto.findAll();
+    
+    // Retorna a lista de projetos em formato JSON
+    res.status(200).json(projetos);
+  } catch (error) {
+    // Captura erros e envia uma resposta de erro
+    console.error('Erro ao buscar projetos:', error);
+    res.status(500).json({ error: 'Erro ao buscar projetos.' });
+  }
 };
 
 module.exports = {
@@ -308,6 +317,7 @@ module.exports = {
   getProjetoById,
   createProjeto,
   updateProjeto,
-  deleteProjeto
+  deleteProjeto,
+  ListarTodosProjetos
 };
 
