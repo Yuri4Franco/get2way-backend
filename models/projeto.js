@@ -14,6 +14,11 @@ module.exports = (sequelize, DataTypes) => {
       Projeto.belongsTo(models.Impulso, { foreignKey: 'impulso_id' });
       Projeto.hasMany(models.Oferta, { foreignKey: 'projeto_id' });
       Projeto.hasMany(models.Contrato, { foreignKey: 'projeto_id' });
+      Projeto.belongsToMany(models.Keyword, {
+        through: 'projeto_keywords', // Tabela intermediária
+        foreignKey: 'projeto_id',
+        as: 'keywords' // Alias para facilitar a busca
+      });
     }
   }
   Projeto.init({
@@ -23,7 +28,7 @@ module.exports = (sequelize, DataTypes) => {
     data_fim: DataTypes.DATE,
     status: DataTypes.STRING,
     trl: DataTypes.INTEGER,
-    acatech: DataTypes.INTEGER,
+    prioridade: DataTypes.STRING,
     justificativas: DataTypes.STRING,
     objsmart: DataTypes.STRING,
     beneficios: DataTypes.STRING,

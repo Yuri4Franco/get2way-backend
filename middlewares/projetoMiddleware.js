@@ -12,9 +12,6 @@ const validateProjeto = [
   body('trl')
     .isInt({ min: 1, max: 9 }).withMessage('trl deve ser um número entre 1 e 9'),
 
-  body('acatech')
-    .isInt({ min: 1, max: 5 }).withMessage('Acatech deve ser um número entre 1 e 5'),
-
   body('data_inicio')
     .isISO8601().withMessage('Data de início deve estar no formato YYYY-MM-DD'),
 

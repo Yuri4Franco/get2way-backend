@@ -2,29 +2,28 @@ const express = require('express');
 const router = express.Router();
 const projetoController = require('../controllers/projetoController'); 
 const { validateProjeto } = require('../middlewares/projetoMiddleware');
+const authenticateToken = require('../middlewares/auth');
 
-
-
-// Listar todos projetos
-router.get('/projetos', projetoController.ListarTodosProjetos);
+// Listar todos os projetos
+router.get('/projetos', authenticateToken, projetoController.ListarTodosProjetos);
 
 // Filtros
-router.get('/projetos/programa/:programa_id', projetoController.getProjetosByProgramaId);
-router.get('/projetos/rota/:rota_id', projetoController.getProjetosByRotaId);
-router.get('/projetos/rota/:rota_id/programa/:programa_id', projetoController.getProjetosByRotaAndProgramaId);
-router.get('/projetos/status/:status', projetoController.getProjetosByStatus);
+router.get('/projetos/programa/:programa_id', authenticateToken, projetoController.getProjetosByProgramaId);
+router.get('/projetos/rota/:rota_id', authenticateToken, projetoController.getProjetosByRotaId);;
+router.get('/projetos/status/:status', authenticateToken, projetoController.getProjetosByStatus);
+router.get('/projetos/keyword/:keyword', authenticateToken, projetoController.getProjetosByKeyword);
+router.get('/projetos/prioridade/:prioridade', authenticateToken, projetoController.getProjetosByPrioridade);
 
-// Selecionar
-router.get('/projetos/:id', projetoController.getProjetoById);
+// Selecionar projeto por ID
+router.get('/projetos/:id', authenticateToken, projetoController.getProjetoById);
 
-// Criar
-router.post('/projetos', validateProjeto,projetoController.createProjeto);
+// Criar projeto
+router.post('/projetos', authenticateToken, validateProjeto, projetoController.createProjeto);
 
-// Deletar
-router.put('/projetos/:id', validateProjeto, projetoController.updateProjeto);
+// Atualizar projeto
+router.put('/projetos/:id', authenticateToken, validateProjeto, projetoController.updateProjeto);
 
-// Atualizar
-router.delete('/projetos/:id', projetoController.deleteProjeto);
-
+// Deletar projeto
+router.delete('/projetos/:id', authenticateToken, projetoController.deleteProjeto);
 
 module.exports = router;

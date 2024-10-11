@@ -1,23 +1,21 @@
 const express = require('express');
 const router = express.Router();
 const rotaController = require('../controllers/rotaController');
+const autenticaToken = require('../middlewares/auth');
 
 // Rota para criar uma nova rota
-router.post('/rotas', rotaController.CadastrarRota);
+router.post('/rotas', autenticaToken, rotaController.CadastrarRota);
 
 // Rota para buscar todas as rotas
-router.get('/rotas', rotaController.BuscarTodasRotas);
-
-// Rota para buscar uma rota por ID
-router.get('/rotas/:id', rotaController.BuscarRotaPorId);
+router.get('/rotas', autenticaToken, rotaController.BuscarTodasRotas);
 
 // Rota para atualizar uma rota
-router.put('/rotas/:id', rotaController.AtualizarRota);
+router.put('/rotas/:id', autenticaToken, rotaController.AtualizarRota);
 
 // Rota para deletar uma rota
-router.delete('/rotas/:id', rotaController.DeletarRota);
+router.delete('/rotas/:id', autenticaToken, rotaController.DeletarRota);
 
-// Rota para buscar rotas por empresa
-router.get('/rotas/empresa/:empresa_id', rotaController.BuscarRotasPorEmpresaId);
+// Rotas da empresa
+router.get('/rotas/empresa/:empresa_id', autenticaToken, rotaController.BuscarRotasPorEmpresaId);
 
 module.exports = router;

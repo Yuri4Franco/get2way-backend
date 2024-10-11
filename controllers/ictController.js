@@ -1,10 +1,25 @@
 const Ict = require('../models').Ict;
+const Usuario = require('../models').Usuario;
+
+// Função para verificar se o usuário é admin
+const verificarAdmin = async (usuarioId) => {
+  const usuario = await Usuario.findByPk(usuarioId);
+  return usuario.tipo === 'admin';
+};
 
 // Criar uma nova ICT
 const CadastrarIct = async (req, res) => {
+  const usuarioLogado = req.user;
+
   try {
+    const isAdmin = await verificarAdmin(usuarioLogado.id);
+
+    if (!isAdmin) {
+      return res.status(403).json({ error: 'Acesso negado. Apenas administradores podem cadastrar ICTs.' });
+    }
+
     const { nome, cnpj, razao_social, endereco, telefone, email, site, foto_perfil } = req.body;
-    
+
     const novaIct = await Ict.create({
       nome,
       cnpj,
@@ -25,7 +40,15 @@ const CadastrarIct = async (req, res) => {
 
 // Buscar todas as ICTs
 const BuscarTodasIcts = async (req, res) => {
+  const usuarioLogado = req.user;
+
   try {
+    const isAdmin = await verificarAdmin(usuarioLogado.id);
+
+    if (!isAdmin) {
+      return res.status(403).json({ error: 'Acesso negado. Apenas administradores podem visualizar todas as ICTs.' });
+    }
+
     const icts = await Ict.findAll();
     res.status(200).json(icts);
   } catch (error) {
@@ -35,7 +58,15 @@ const BuscarTodasIcts = async (req, res) => {
 
 // Buscar uma ICT por ID
 const BuscarIctPorId = async (req, res) => {
+  const usuarioLogado = req.user;
+
   try {
+    const isAdmin = await verificarAdmin(usuarioLogado.id);
+
+    if (!isAdmin) {
+      return res.status(403).json({ error: 'Acesso negado. Apenas administradores podem visualizar uma ICT.' });
+    }
+
     const ict = await Ict.findByPk(req.params.id);
     if (ict) {
       res.status(200).json(ict);
@@ -49,7 +80,15 @@ const BuscarIctPorId = async (req, res) => {
 
 // Atualizar uma ICT
 const AtualizarIct = async (req, res) => {
+  const usuarioLogado = req.user;
+
   try {
+    const isAdmin = await verificarAdmin(usuarioLogado.id);
+
+    if (!isAdmin) {
+      return res.status(403).json({ error: 'Acesso negado. Apenas administradores podem atualizar ICTs.' });
+    }
+
     const { nome, cnpj, razao_social, endereco, telefone, email, site, foto_perfil } = req.body;
     const ict = await Ict.findByPk(req.params.id);
 
@@ -74,7 +113,15 @@ const AtualizarIct = async (req, res) => {
 
 // Deletar uma ICT
 const DeletarIct = async (req, res) => {
+  const usuarioLogado = req.user;
+
   try {
+    const isAdmin = await verificarAdmin(usuarioLogado.id);
+
+    if (!isAdmin) {
+      return res.status(403).json({ error: 'Acesso negado. Apenas administradores podem deletar ICTs.' });
+    }
+
     const ict = await Ict.findByPk(req.params.id);
     if (ict) {
       await ict.destroy();
