@@ -2,17 +2,39 @@ const Interesse = require('../models').Interesse;
 const Usuario = require('../models').Usuario;
 const Oferta = require('../models').Oferta;
 const InteresseHasUsuario = require('../models').InteresseHasUsuario;
+const Projeto = require('../models').Projeto;
+const Programa = require('../models').Programa;
+const Rota = require('../models').Rota;
 
 // Criar um interesse de um usuário em uma oferta
 const CriarInteresse = async (req, res) => {
+  const usuarioLogado = req.user;
+
   try {
-    const { usuario_id, oferta_id, proposta } = req.body;
+    const { oferta_id, proposta } = req.body;
 
-    // Cria o interesse
+    // Permitir que o admin ignore a verificação de empresa
+    if (usuarioLogado.role !== 'admin') {
+      const oferta = await Oferta.findByPk(oferta_id, {
+        include: {
+          model: Projeto,
+          include: {
+            model: Programa,
+            include: {
+              model: Rota,
+              where: { empresa_id: usuarioLogado.empresa_id }
+            }
+          }
+        }
+      });
+
+      if (!oferta) {
+        return res.status(403).json({ message: 'Acesso negado: Oferta não pertence a um projeto da sua empresa.' });
+      }
+    }
+
     const interesse = await Interesse.create({ oferta_id, proposta });
-
-    // Relaciona o interesse ao usuário (muitos para muitos)
-    await InteresseHasUsuario.create({ interesse_id: interesse.id, usuario_id });
+    await InteresseHasUsuario.create({ interesse_id: interesse.id, usuario_id: usuarioLogado.id });
 
     res.status(201).json({ message: 'Interesse criado com sucesso', interesse });
   } catch (error) {
@@ -23,11 +45,9 @@ const CriarInteresse = async (req, res) => {
 // Listar todos os interesses de uma oferta
 const BuscarInteressesPorOferta = async (req, res) => {
   const { oferta_id } = req.params;
+  const usuarioLogado = req.user;
 
   try {
-    console.log('Buscando oferta com ID:', oferta_id); // Log para verificar o ID da oferta
-
-    // Buscar a oferta com os interesses e os usuários associados
     const oferta = await Oferta.findByPk(oferta_id, {
       include: [
         {
@@ -37,55 +57,65 @@ const BuscarInteressesPorOferta = async (req, res) => {
             {
               model: Usuario,
               as: 'usuarios',
-              through: { attributes: [] }, // Evitar a duplicação da tabela pivot
+              through: { attributes: [] },
             }
           ]
+        },
+        {
+          model: Projeto,
+          include: {
+            model: Programa,
+            include: {
+              model: Rota,
+              where: usuarioLogado.role === 'admin' ? {} : { empresa_id: usuarioLogado.empresa_id }
+            }
+          }
         }
       ]
     });
 
-    // Log do resultado da oferta encontrada
-    console.log('Resultado da busca pela oferta:', oferta);
-
-    // Verifica se a oferta existe
     if (!oferta) {
-      console.log('Oferta não encontrada'); // Log quando a oferta não é encontrada
-      return res.status(404).json({ message: 'Oferta não encontrada.' });
+      return res.status(403).json({ message: 'Acesso negado: Você não tem permissão para ver interesses dessa oferta.' });
     }
 
-    // Log para verificar os interesses associados
-    console.log('Interesses associados à oferta:', oferta.interesses);
-
-    // Retorna os interesses associados à oferta
     res.status(200).json(oferta.interesses);
   } catch (error) {
-    console.error('Erro ao buscar interesses da oferta:', error); // Log do erro
     res.status(500).json({ error: 'Erro ao buscar interesses da oferta.' });
   }
 };
 
 // Detalhar um interesse de um usuário específico para uma oferta
 const DetalharInteressePorUsuario = async (req, res) => {
-  try {
-    const { ofertaId, usuarioId } = req.params;
+  const usuarioLogado = req.user;
+  const { ofertaId, usuarioId } = req.params;
 
-    // Buscar o interesse específico da oferta e usuário
+  try {
     const interesse = await InteresseHasUsuario.findOne({
       where: { usuario_id: usuarioId },
       include: [
         {
           model: Interesse,
           where: { oferta_id: ofertaId },
+          include: {
+            model: Oferta,
+            include: {
+              model: Projeto,
+              include: {
+                model: Programa,
+                include: {
+                  model: Rota,
+                  where: usuarioLogado.role === 'admin' ? {} : { empresa_id: usuarioLogado.empresa_id }
+                }
+              }
+            }
+          }
         },
-        {
-          model: Usuario,
-          where: { id: usuarioId },
-        },
-      ],
+        { model: Usuario, where: { id: usuarioId } },
+      ]
     });
 
     if (!interesse) {
-      return res.status(404).json({ error: 'Interesse não encontrado' });
+      return res.status(403).json({ message: 'Acesso negado ou interesse não encontrado.' });
     }
 
     res.status(200).json(interesse);
@@ -94,23 +124,65 @@ const DetalharInteressePorUsuario = async (req, res) => {
   }
 };
 
+// Rejeitar um interesse
+const RejeitarInteresse = async (req, res) => {
+  const usuarioLogado = req.user;
+  const { interesse_id } = req.params;
+
+  try {
+    const interesse = await Interesse.findByPk(interesse_id, {
+      include: {
+        model: Oferta,
+        include: {
+          model: Projeto,
+          include: {
+            model: Programa,
+            include: {
+              model: Rota,
+              where: usuarioLogado.role === 'admin' ? {} : { empresa_id: usuarioLogado.empresa_id }
+            }
+          }
+        }
+      }
+    });
+
+    if (!interesse) {
+      return res.status(404).json({ message: 'Interesse não encontrado ou não pertence a um projeto da sua empresa.' });
+    }
+
+    await interesse.destroy();
+    res.status(200).json({ message: 'Interesse rejeitado e removido com sucesso.' });
+  } catch (error) {
+    res.status(500).json({ error: `Erro ao rejeitar o interesse: ${error.message}` });
+  }
+};
+
 // Listar todos os interesses de um usuário
 const ListarInteressesPorUsuario = async (req, res) => {
-  try {
-    const usuarioId = req.params.usuarioId;
+  const usuarioLogado = req.user;
 
-    // Busca todos os interesses relacionados ao usuário
+  try {
     const interesses = await InteresseHasUsuario.findAll({
-      where: { usuario_id: usuarioId },
+      where: { usuario_id: usuarioLogado.id },
       include: [
         {
           model: Interesse,
           include: [
             {
-              model: Oferta, // Inclui detalhes da oferta
-            },
+              model: Oferta,
+              include: {
+                model: Projeto,
+                include: {
+                  model: Programa,
+                  include: {
+                    model: Rota,
+                    where: usuarioLogado.role === 'admin' ? {} : { empresa_id: usuarioLogado.empresa_id }
+                  }
+                }
+              }
+            }
           ],
-        },
+        }
       ],
     });
 
@@ -125,4 +197,5 @@ module.exports = {
   BuscarInteressesPorOferta,
   DetalharInteressePorUsuario,
   ListarInteressesPorUsuario,
+  RejeitarInteresse
 };

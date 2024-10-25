@@ -12,6 +12,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       Empresa.hasMany(models.Rota, { foreignKey: 'empresa_id' });
       Empresa.hasMany(models.Responsavel, { foreignKey: 'empresa_id' });
+      Empresa.hasMany(models.Impulso, { foreignKey: 'empresa_id' });
     }
   }
   Empresa.init({
@@ -27,6 +28,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'Empresa',
+    tableName: 'empresas'
   });
   return Empresa;
 };

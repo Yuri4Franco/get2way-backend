@@ -31,7 +31,7 @@ module.exports = {
         unique: true,
       },
       tipo: {
-        type: Sequelize.ENUM('empresa', 'ict', 'aluno', 'adm'),
+        type: Sequelize.STRING(45),
         allowNull: false,
       },
       primeiro_acesso: {

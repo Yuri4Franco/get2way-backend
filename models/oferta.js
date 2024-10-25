@@ -7,12 +7,17 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'oferta_id',
         as: 'interesses', // Alias para facilitar a busca
       });
+      Oferta.belongsTo(models.Projeto, {
+        foreignKey: 'projeto_id',
+      });
+      Oferta.belongsTo(models.Impulso, { foreignKey: 'impulso_id' });
     }
   }
   Oferta.init({
     data_inicio: DataTypes.DATE,
     data_fim: DataTypes.DATE,
-    projeto_id: DataTypes.INTEGER
+    projeto_id: DataTypes.INTEGER,
+    status: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'Oferta',

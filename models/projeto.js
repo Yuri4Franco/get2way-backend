@@ -11,7 +11,6 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       Projeto.belongsTo(models.Programa, { foreignKey: 'programa_id' });
-      Projeto.belongsTo(models.Impulso, { foreignKey: 'impulso_id' });
       Projeto.hasMany(models.Oferta, { foreignKey: 'projeto_id' });
       Projeto.hasMany(models.Contrato, { foreignKey: 'projeto_id' });
       Projeto.belongsToMany(models.Keyword, {
@@ -28,6 +27,7 @@ module.exports = (sequelize, DataTypes) => {
     data_fim: DataTypes.DATE,
     status: DataTypes.STRING,
     trl: DataTypes.INTEGER,
+    acatech: DataTypes.INTEGER,
     prioridade: DataTypes.STRING,
     justificativas: DataTypes.STRING,
     objsmart: DataTypes.STRING,
@@ -43,8 +43,7 @@ module.exports = (sequelize, DataTypes) => {
     linha_do_tempo: DataTypes.STRING,
     custos: DataTypes.STRING,
     upload: DataTypes.STRING,
-    programa_id: DataTypes.INTEGER,
-    impulso_id: DataTypes.INTEGER
+    programa_id: DataTypes.INTEGER
   }, {
     sequelize,
     modelName: 'Projeto',

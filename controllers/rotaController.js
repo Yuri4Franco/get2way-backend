@@ -93,7 +93,6 @@ const DeletarRota = async (req, res) => {
   }
 };
 
-// Buscar rotas de uma empresa específica (Empresa pode ver apenas suas rotas, admin pode ver qualquer uma)
 // Buscar rotas de uma empresa específica (somente admin pode ver)
 const BuscarRotasPorEmpresaId = async (req, res) => {
   const { role } = req.user;

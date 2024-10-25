@@ -14,8 +14,19 @@ module.exports = {
       },
       oferta_id: {
         type: Sequelize.INTEGER,
+        allowNull: false,
         references: {
           model: 'ofertas',
+          key: 'id',
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
+      },
+      usuario_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'usuarios',
           key: 'id',
         },
         onDelete: 'CASCADE',

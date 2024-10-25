@@ -2,28 +2,21 @@ const express = require('express');
 const router = express.Router();
 const projetoController = require('../controllers/projetoController'); 
 const { validateProjeto } = require('../middlewares/projetoMiddleware');
-const authenticateToken = require('../middlewares/auth');
+const AutenticarToken = require('../middlewares/auth');
 
-// Listar todos os projetos
-router.get('/projetos', authenticateToken, projetoController.ListarTodosProjetos);
-
-// Filtros
-router.get('/projetos/programa/:programa_id', authenticateToken, projetoController.getProjetosByProgramaId);
-router.get('/projetos/rota/:rota_id', authenticateToken, projetoController.getProjetosByRotaId);;
-router.get('/projetos/status/:status', authenticateToken, projetoController.getProjetosByStatus);
-router.get('/projetos/keyword/:keyword', authenticateToken, projetoController.getProjetosByKeyword);
-router.get('/projetos/prioridade/:prioridade', authenticateToken, projetoController.getProjetosByPrioridade);
+// Listar projetos e filtrar
+router.get('/projetos', AutenticarToken, projetoController.VerProjetos);
 
 // Selecionar projeto por ID
-router.get('/projetos/:id', authenticateToken, projetoController.getProjetoById);
+router.get('/projetos/:id', AutenticarToken, projetoController.SelecionarProjeto);
 
 // Criar projeto
-router.post('/projetos', authenticateToken, validateProjeto, projetoController.createProjeto);
+router.post('/projetos', AutenticarToken, validateProjeto, projetoController.CadastrarProjeto);
 
 // Atualizar projeto
-router.put('/projetos/:id', authenticateToken, validateProjeto, projetoController.updateProjeto);
+router.put('/projetos/:id', AutenticarToken, validateProjeto, projetoController.AtualizarProjeto);
 
 // Deletar projeto
-router.delete('/projetos/:id', authenticateToken, projetoController.deleteProjeto);
+router.delete('/projetos/:id', AutenticarToken, projetoController.DeletarProjeto);
 
 module.exports = router;

@@ -1,28 +1,23 @@
 const express = require('express');
 const router = express.Router();
 const ofertaController = require('../controllers/ofertaController');
+const AutenticarToken = require('../middlewares/auth');
 
 
 // Cadastrar uma nova oferta
-router.post('/ofertas', ofertaController.CadastrarOferta);
+router.post('/ofertas', AutenticarToken, ofertaController.CadastrarOferta);
 
 // Atualizar uma oferta
-router.put('/ofertas/:id', ofertaController.AtualizarOferta);
+router.put('/ofertas/:id', AutenticarToken, ofertaController.AtualizarOferta);
 
 // Deletar uma oferta
-router.delete('/ofertas/:id', ofertaController.DeletarOferta);
+router.delete('/ofertas/:id', AutenticarToken, ofertaController.DeletarOferta);
 
 // Consultar uma oferta por ID
-router.get('/ofertas/:id', ofertaController.BuscarOfertaPorId);
+router.get('/ofertas/:id', AutenticarToken, ofertaController.SelecionarOferta);
 
 // Listar todas as ofertas
-router.get('/ofertas', ofertaController.BuscarTodasOfertas);
-
-// Buscar ofertas por empresa
-router.get('/ofertas/empresa/:empresa_id', ofertaController.BuscarOfertasPorEmpresa);
-
-// Buscar ofertas por impulso
-router.get('/ofertas/impulso/:impulso_id', ofertaController.BuscarOfertasPorImpulso);
+router.get('/ofertas', AutenticarToken, ofertaController.VerOfertas);
 
 module.exports = router;
 

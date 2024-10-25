@@ -1,7 +1,6 @@
 // dtos/projetoDTO.js
 
 const { programaDTO } = require('./programaDTO'); // Importando o DTO de Programa
-const { impulsoDTO } = require('./impulsoDTO');   // Importando o DTO de Impulso
 
 // Função para transformar um modelo de Projeto em DTO
 const projetoDTO = (projeto) => {
@@ -32,7 +31,6 @@ const projetoDTO = (projeto) => {
 
     // Relacionamentos controlados (evitando referências cíclicas)
     programa: projeto.Programa ? programaDTO(projeto.Programa) : null,  // Inclui o DTO de Programa se disponível
-    impulso: projeto.Impulso ? impulsoDTO(projeto.Impulso) : null,      // Inclui o DTO de Impulso se disponível
   };
 };
 

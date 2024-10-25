@@ -8,16 +8,8 @@ module.exports = {
         autoIncrement: true,
         primaryKey: true,
       },
-      data_inicio: {
-        type: Sequelize.DATE,
-        allowNull: false,
-      },
-      data_fim: {
-        type: Sequelize.DATE,
-        allowNull: true,
-      },
       status: {
-        type: Sequelize.ENUM('ativa', 'inativa'),
+        type: Sequelize.STRING,
         allowNull: false,
       },
       projeto_id: {
@@ -36,6 +28,16 @@ module.exports = {
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE,
+      },
+      impulso_id: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        references: {
+          model: 'impulsos',
+          key: 'id',
+        },
+        onDelete: 'SET NULL',
+        onUpdate: 'CASCADE',
       },
     });
   },

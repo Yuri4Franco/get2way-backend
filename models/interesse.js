@@ -6,10 +6,11 @@ module.exports = (sequelize, DataTypes) => {
       Interesse.belongsTo(models.Oferta, {
         foreignKey: 'oferta_id',
       });
-      Interesse.belongsToMany(models.Usuario, {
-        through: 'interesse_has_usuarios',
+      Interesse.hasOne(models.Contrato, {
         foreignKey: 'interesse_id',
-        as: 'usuarios', // Alias para facilitar a busca
+      });
+      Interesse.belongsTo(models.Usuario, {
+        foreignKey: 'usuario_id',
       });
     }
   }

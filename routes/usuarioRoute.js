@@ -1,17 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const usuarioController = require('../controllers/usuarioController');
-const authenticateToken = require('../middlewares/auth');
+const AutenticarToken = require('../middlewares/auth');
 
 
 // Cadastrar um usuário
 router.post('/usuarios', usuarioController.CadastrarUsuario);
 
 // Responsavel cadastrar usuario
-router.post('/cadastrar-usuario', authenticateToken, usuarioController.ResponsavelCadastrarUsuario);
-
-// Login
-router.post('/login', usuarioController.Login);
+router.post('/cadastrar-usuario', AutenticarToken, usuarioController.ResponsavelCadastrarUsuario);
 
 // Buscar usuario dinamico
 router.get('/usuarios/buscar', usuarioController.BuscarUsuarioDinamico);

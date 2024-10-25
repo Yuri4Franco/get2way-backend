@@ -9,20 +9,88 @@ module.exports = {
         primaryKey: true,
       },
       nome: {
-        type: Sequelize.STRING(45),
+        type: Sequelize.STRING(100),
         allowNull: false,
       },
       descricao: {
         type: Sequelize.STRING(255),
         allowNull: false,
       },
+      status: {
+        type: Sequelize.STRING(45),
+        allowNull: false,
+      },
+      trl: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+      },
+      acatech: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+      },
       data_inicio: {
         type: Sequelize.DATE,
-        allowNull: false,
+        allowNull: true,
       },
       data_fim: {
         type: Sequelize.DATE,
-        allowNull: false,
+        allowNull: true,
+      },
+      justificativas: {
+        type: Sequelize.STRING(255),
+        allowNull: true,
+      },
+      objsmart: {
+        type: Sequelize.STRING(255),
+        allowNull: true,
+      },
+      beneficios: {
+        type: Sequelize.STRING(255),
+        allowNull: true,
+      },
+      produto: {
+        type: Sequelize.STRING(255),
+        allowNull: true,
+      },
+      requisitos: {
+        type: Sequelize.STRING(255),
+        allowNull: true, 
+      },
+      steakholders: {
+        type: Sequelize.STRING(255),
+        allowNull: true, 
+      },
+      equipe: {
+        type: Sequelize.STRING(255),
+        allowNull: true, 
+      },
+      premissas: {
+        type: Sequelize.STRING(255),
+        allowNull: true, 
+      },
+      grupo_de_entrega: {
+        type: Sequelize.STRING(255),
+        allowNull: true, 
+      },
+      restricoes: {
+        type: Sequelize.STRING(255),
+        allowNull: true, 
+      },
+      riscos: {
+        type: Sequelize.STRING(255),
+        allowNull: true, 
+      },
+      linha_do_tempo: {
+        type: Sequelize.STRING(255),
+        allowNull: true,
+      },
+      custos: {
+        type: Sequelize.STRING(255),
+        allowNull: true,
+      },
+      upload: {
+        type: Sequelize.STRING(255),
+        allowNull: true,
       },
       programa_id: {
         type: Sequelize.INTEGER,
@@ -31,16 +99,6 @@ module.exports = {
           key: 'id',
         },
         onDelete: 'CASCADE',
-        onUpdate: 'CASCADE',
-      },
-      impulso_id: {
-        type: Sequelize.INTEGER,
-        allowNull: true,
-        references: {
-          model: 'impulsos',
-          key: 'id',
-        },
-        onDelete: 'SET NULL',
         onUpdate: 'CASCADE',
       },
       createdAt: {

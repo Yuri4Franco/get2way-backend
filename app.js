@@ -12,6 +12,7 @@ const impulsoRoute = require('./routes/impulsoRoute');
 const ofertaRoutes = require('./routes/ofertaRoute');
 const interesseRoutes = require('./routes/interesseRoute');
 const contratoRoutes = require('./routes/contratoRoute');
+const authRoute = require('./routes/authRoute');
 
 
 
@@ -40,6 +41,8 @@ app.use('/api', ofertaRoutes);
 app.use('/api', interesseRoutes);
 
 app.use('/api', contratoRoutes);
+
+app.use('/api', authRoute);
 
 // Iniciar o servidor
 const port = process.env.PORT || 3000;

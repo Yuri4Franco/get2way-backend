@@ -18,31 +18,14 @@ module.exports = {
         allowNull: true,
       },
       status: {
-        type: Sequelize.ENUM('ativa', 'inativa'),
+        type: Sequelize.STRING(45),
         allowNull: false,
-      },
-      projeto_id: {
-        type: Sequelize.INTEGER,
-        references: {
-          model: 'projetos',
-          key: 'id',
-        },
-        onDelete: 'CASCADE',
-        onUpdate: 'CASCADE',
       },
       interesse_id: {
         type: Sequelize.INTEGER,
+        allowNull: false,
         references: {
           model: 'interesses',
-          key: 'id',
-        },
-        onDelete: 'CASCADE',
-        onUpdate: 'CASCADE',
-      },
-      usuario_id: {
-        type: Sequelize.INTEGER,
-        references: {
-          model: 'usuarios',
           key: 'id',
         },
         onDelete: 'CASCADE',

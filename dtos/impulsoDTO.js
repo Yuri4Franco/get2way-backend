@@ -1,4 +1,3 @@
-// dtos/impulsoDTO.js
 const impulsoDTO = (impulso) => {
     return {
       id: impulso.id,
