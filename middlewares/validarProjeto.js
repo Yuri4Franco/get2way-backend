@@ -3,7 +3,7 @@ const { body, validationResult } = require('express-validator');
 const validateProjeto = [
   body('nome')
     .notEmpty().withMessage('Nome é obrigatório')
-    .isLength({ max: 45 }).withMessage('Nome pode ter no máximo 45 caracteres'),
+    .isLength({ max: 100 }).withMessage('Nome pode ter no máximo 100 caracteres'),
 
   body('descricao')
     .notEmpty().withMessage('Descrição é obrigatória')

@@ -2,7 +2,7 @@ const Ict = require('../models').Ict;
 const Usuario = require('../models').Usuario;
 
 // Função para verificar se o usuário é admin
-const verificarAdmin = async (usuarioId) => {
+const VerificarAdmin = async (usuarioId) => {
   const usuario = await Usuario.findByPk(usuarioId);
   return usuario.tipo === 'admin';
 };
@@ -12,7 +12,7 @@ const CadastrarIct = async (req, res) => {
   const usuarioLogado = req.user;
 
   try {
-    const isAdmin = await verificarAdmin(usuarioLogado.id);
+    const isAdmin = await VerificarAdmin(usuarioLogado.id);
 
     if (!isAdmin) {
       return res.status(403).json({ error: 'Acesso negado. Apenas administradores podem cadastrar ICTs.' });
@@ -43,7 +43,7 @@ const BuscarTodasIcts = async (req, res) => {
   const usuarioLogado = req.user;
 
   try {
-    const isAdmin = await verificarAdmin(usuarioLogado.id);
+    const isAdmin = await VerificarAdmin(usuarioLogado.id);
 
     if (!isAdmin) {
       return res.status(403).json({ error: 'Acesso negado. Apenas administradores podem visualizar todas as ICTs.' });
@@ -61,7 +61,7 @@ const BuscarIctPorId = async (req, res) => {
   const usuarioLogado = req.user;
 
   try {
-    const isAdmin = await verificarAdmin(usuarioLogado.id);
+    const isAdmin = await VerificarAdmin(usuarioLogado.id);
 
     if (!isAdmin) {
       return res.status(403).json({ error: 'Acesso negado. Apenas administradores podem visualizar uma ICT.' });
@@ -83,7 +83,7 @@ const AtualizarIct = async (req, res) => {
   const usuarioLogado = req.user;
 
   try {
-    const isAdmin = await verificarAdmin(usuarioLogado.id);
+    const isAdmin = await VerificarAdmin(usuarioLogado.id);
 
     if (!isAdmin) {
       return res.status(403).json({ error: 'Acesso negado. Apenas administradores podem atualizar ICTs.' });
@@ -116,7 +116,7 @@ const DeletarIct = async (req, res) => {
   const usuarioLogado = req.user;
 
   try {
-    const isAdmin = await verificarAdmin(usuarioLogado.id);
+    const isAdmin = await VerificarAdmin(usuarioLogado.id);
 
     if (!isAdmin) {
       return res.status(403).json({ error: 'Acesso negado. Apenas administradores podem deletar ICTs.' });

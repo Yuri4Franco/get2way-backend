@@ -9,7 +9,7 @@ const projetoDTO = (projeto) => {
     id: projeto.id,
     nome: projeto.nome,
     descricao: projeto.descricao,
-    tlr: projeto.tlr,
+    tlr: projeto.trl,
     acatech: projeto.acatech,
     data_inicio: projeto.data_inicio,
     data_fim: projeto.data_fim,

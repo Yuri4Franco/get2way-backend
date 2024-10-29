@@ -2,17 +2,17 @@ const Empresa = require('../models').Empresa;
 const Usuario = require('../models').Usuario;
 
 // Função para verificar se o usuário é admin
-const verificarAdmin = async (usuarioId) => {
+const VerificarAdmin = async (usuarioId) => {
   const usuario = await Usuario.findByPk(usuarioId);
   return usuario.tipo === 'admin';
 };
 
 // Cadastrar uma nova Empresa (apenas admin pode)
-const cadastrarEmpresa = async (req, res) => {
+const CadastrarEmpresa = async (req, res) => {
   const usuarioLogado = req.user;
 
   try {
-    const isAdmin = await verificarAdmin(usuarioLogado.id);
+    const isAdmin = await VerificarAdmin(usuarioLogado.id);
 
     if (!isAdmin) {
       return res.status(403).json({ error: 'Acesso negado. Apenas administradores podem cadastrar empresas.' });
@@ -40,11 +40,11 @@ const cadastrarEmpresa = async (req, res) => {
 };
 
 // Atualizar uma Empresa (apenas admin pode)
-const atualizarEmpresa = async (req, res) => {
+const AtualizarEmpresa = async (req, res) => {
   const usuarioLogado = req.user;
 
   try {
-    const isAdmin = await verificarAdmin(usuarioLogado.id);
+    const isAdmin = await VerificarAdmin(usuarioLogado.id);
 
     if (!isAdmin) {
       return res.status(403).json({ error: 'Acesso negado. Apenas administradores podem atualizar empresas.' });
@@ -78,11 +78,11 @@ const atualizarEmpresa = async (req, res) => {
 };
 
 // Deletar uma Empresa (apenas admin pode)
-const deletarEmpresa = async (req, res) => {
+const DeletarEmpresa = async (req, res) => {
   const usuarioLogado = req.user;
 
   try {
-    const isAdmin = await verificarAdmin(usuarioLogado.id);
+    const isAdmin = await VerificarAdmin(usuarioLogado.id);
 
     if (!isAdmin) {
       return res.status(403).json({ error: 'Acesso negado. Apenas administradores podem deletar empresas.' });
@@ -104,7 +104,7 @@ const deletarEmpresa = async (req, res) => {
 };
 
 // Consultar uma Empresa por ID (todos podem ver, mas apenas suas empresas)
-const consultarEmpresaPorId = async (req, res) => {
+const ConsultarEmpresaPorId = async (req, res) => {
   const usuarioLogado = req.user;
 
   try {
@@ -127,11 +127,11 @@ const consultarEmpresaPorId = async (req, res) => {
 };
 
 // Consultar todas as Empresas (apenas admin pode)
-const consultarTodasEmpresas = async (req, res) => {
+const ConsultarTodasEmpresas = async (req, res) => {
   const usuarioLogado = req.user;
 
   try {
-    const isAdmin = await verificarAdmin(usuarioLogado.id);
+    const isAdmin = await VerificarAdmin(usuarioLogado.id);
 
     if (!isAdmin) {
       return res.status(403).json({ error: 'Acesso negado. Apenas administradores podem visualizar todas as empresas.' });
@@ -146,9 +146,9 @@ const consultarTodasEmpresas = async (req, res) => {
 };
 
 module.exports = {
-  cadastrarEmpresa,
-  atualizarEmpresa,
-  deletarEmpresa,
-  consultarEmpresaPorId,
-  consultarTodasEmpresas
+  CadastrarEmpresa,
+  AtualizarEmpresa,
+  DeletarEmpresa,
+  ConsultarEmpresaPorId,
+  ConsultarTodasEmpresas
 };

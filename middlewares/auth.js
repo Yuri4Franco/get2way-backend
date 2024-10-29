@@ -8,9 +8,9 @@ const AutenticarToken = (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET); // Verifica o token
-    req.user = decoded; // Armazena os dados do usuário no request
-    next(); // Continua para a próxima função
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded;
+    next();
   } catch (err) {
     res.status(401).json({ message: 'Token inválido.' });
   }

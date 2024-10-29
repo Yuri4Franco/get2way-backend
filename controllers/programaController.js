@@ -4,7 +4,7 @@ const Usuario = require('../models').Usuario;
 const Rota = require('../models').Rota;
 
 // Função para verificar se o usuário é admin
-const verificarAdmin = async (usuarioId) => {
+const VerificarAdmin = async (usuarioId) => {
   const usuario = await Usuario.findByPk(usuarioId);
   return usuario.tipo === 'admin';
 };
@@ -30,7 +30,7 @@ const CadastrarPrograma = async (req, res) => {
   
     try {
       // Verificar se o usuário é admin
-      const isAdmin = await verificarAdmin(usuarioLogado.id);
+      const isAdmin = await VerificarAdmin(usuarioLogado.id);
   
       // Se o usuário for empresa, verificar se a rota pertence à empresa dele antes de cadastrar o programa
       if (!isAdmin) {

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const projetoController = require('../controllers/projetoController'); 
-const { validateProjeto } = require('../middlewares/projetoMiddleware');
+const { validateProjeto } = require('../middlewares/validarProjeto');
 const AutenticarToken = require('../middlewares/auth');
 
 // Listar projetos e filtrar

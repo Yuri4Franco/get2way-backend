@@ -1,5 +1,6 @@
 const Usuario = require('../models').Usuario;
 const Responsavel = require('../models').Responsavel;
+const enviarEmail = require('../services/emailService');
 const { Op } = require('sequelize');
 const bcrypt = require('bcryptjs');
 
@@ -7,33 +8,30 @@ const bcrypt = require('bcryptjs');
 // Responsavel cadastra outro responsavel
 const ResponsavelCadastrarUsuario = async (req, res) => {
   const { nome, email, senha, endereco, telefone, cargo } = req.body;
-  const usuarioLogado = req.user; // O usuário que está logado
+  const usuarioLogado = req.user;
 
-  console.log('Usuário logado:', usuarioLogado); // Log do usuário logado
+  console.log('Usuário logado:', usuarioLogado);
 
   try {
-    // 1. Buscar o registro de "Responsavel" do usuário logado
     const responsavelLogado = await Responsavel.findOne({
       where: { usuario_id: usuarioLogado.id }
     });
 
-    console.log('Responsável logado:', responsavelLogado); // Log do responsável logado
+    console.log('Responsável logado:', responsavelLogado);
 
     if (!responsavelLogado) {
       return res.status(403).json({ error: 'Usuário não tem permissão para cadastrar.' });
     }
-
-    // 3. Armazenar o `empresa_id` ou `ict_id` corretamente
     let empresa_id = null;
     let ict_id = null;
 
     if (usuarioLogado.role === 'empresa') {
-      empresa_id = responsavelLogado.empresa_id;  // Pega a empresa do responsável logado
+      empresa_id = responsavelLogado.empresa_id;
       if (!empresa_id) {
         return res.status(403).json({ error: 'Empresa não associada ao responsável logado.' });
       }
     } else if (usuarioLogado.role === 'ict') {
-      ict_id = responsavelLogado.ict_id;  // Pega a ICT do responsável logado
+      ict_id = responsavelLogado.ict_id;
       if (!ict_id) {
         return res.status(403).json({ error: 'ICT não associada ao responsável logado.' });
       }
@@ -41,10 +39,7 @@ const ResponsavelCadastrarUsuario = async (req, res) => {
       return res.status(400).json({ error: 'Tipo de usuário inválido.' });
     }
 
-    // 4. Gerar hash da senha
     const senhaHash = await bcrypt.hash(senha, 10);
-
-    // 5. Cadastrar o novo usuário com o tipo correto
     const novoUsuario = await Usuario.create({
       nome,
       email,
@@ -73,14 +68,20 @@ const ResponsavelCadastrarUsuario = async (req, res) => {
   }
 };
 
-
 // ADMIN Cadastrar um usuário no sistema
 const CadastrarUsuario = async (req, res) => {
-  const { nome, email, senha, tipo, endereco, telefone } = req.body;
-  try {
+  const { nome, email, senha, tipo, endereco, telefone, cargo, empresa_id, ict_id } = req.body;
+  const usuarioLogado = req.user;
 
+  // Verifica se o usuário logado é admin
+  if (usuarioLogado.tipo !== 'admin') {
+    return res.status(403).json({ error: 'Acesso negado. Apenas administradores podem cadastrar usuários.' });
+  }
+
+  try {
     const senhaHash = await bcrypt.hash(senha, 10);
 
+    // Cria o novo usuário
     const novoUsuario = await Usuario.create({
       nome,
       email,
@@ -90,9 +91,40 @@ const CadastrarUsuario = async (req, res) => {
       endereco,
       telefone,
     });
-    res.status(201).json(novoUsuario);
+
+    // Determina a associação com empresa ou ICT
+    let responsavelEmpresaId = null;
+    let responsavelIctId = null;
+
+    if (tipo === 'empresa' && empresa_id) {
+      responsavelEmpresaId = empresa_id;
+    } else if (tipo === 'ict' && ict_id) {
+      responsavelIctId = ict_id;
+    } else if (tipo === 'empresa' || tipo === 'ict') {
+      return res.status(400).json({ error: 'É necessário informar empresa_id ou ict_id para o tipo de usuário especificado.' });
+    }
+
+    // Cria o responsável associado ao usuário
+    await Responsavel.create({
+      usuario_id: novoUsuario.id,
+      cargo,
+      empresa_id: responsavelEmpresaId,
+      ict_id: responsavelIctId,
+    });
+
+    await enviarEmail(
+      email,
+      'Bem-vindo à plataforma Gate2Way',
+      `Olá ${nome},\n\nVocê foi cadastrado na plataforma Gate2Way.\n\nDados de acesso:\nEmail: ${email}\nSenha: ${senha}\n\nPor segurança, recomendamos que altere sua senha após o primeiro acesso.\n\nAtenciosamente,\nEquipe Gate2Way`
+    );
+
+    res.status(201).json({
+      message: 'Usuário e responsável cadastrados com sucesso!',
+      usuario: novoUsuario
+    });
   } catch (error) {
-    res.status(500).json({ error: 'Erro ao cadastrar o usuário.' });
+    console.error('Erro ao cadastrar o usuário e responsável:', error);
+    res.status(500).json({ error: 'Erro ao cadastrar o usuário e responsável.' });
   }
 };
 

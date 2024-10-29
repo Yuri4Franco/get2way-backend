@@ -5,18 +5,18 @@ const AutenticarToken = require('../middlewares/auth');
 
 
 // Cadastrar uma nova empresa
-router.post('/empresas', AutenticarToken, empresaController.cadastrarEmpresa);
+router.post('/empresas', AutenticarToken, empresaController.CadastrarEmpresa);
 
 // Atualizar uma empresa
-router.put('/empresas/:id', AutenticarToken, empresaController.atualizarEmpresa);
+router.put('/empresas/:id', AutenticarToken, empresaController.AtualizarEmpresa);
 
 // Deletar uma empresa
-router.delete('/empresas/:id', AutenticarToken, empresaController.deletarEmpresa);  
+router.delete('/empresas/:id', AutenticarToken, empresaController.DeletarEmpresa);  
 
 // Consultar uma empresa por ID
-router.get('/empresas/:id', AutenticarToken, empresaController.consultarEmpresaPorId); 
+router.get('/empresas/:id', AutenticarToken, empresaController.ConsultarEmpresaPorId); 
 
 // Listar todas as empresas
-router.get('/empresas', AutenticarToken, empresaController.consultarTodasEmpresas);  
+router.get('/empresas', AutenticarToken, empresaController.ConsultarTodasEmpresas);  
 
 module.exports = router;
