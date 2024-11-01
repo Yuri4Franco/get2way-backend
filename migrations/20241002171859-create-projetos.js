@@ -28,6 +28,10 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: true,
       },
+      prioridade: {
+        type: Sequelize.STRING(45),
+        allowNull: false,
+      },
       data_inicio: {
         type: Sequelize.DATE,
         allowNull: true,

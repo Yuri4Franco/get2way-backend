@@ -2,10 +2,11 @@ const express = require('express');
 const router = express.Router();
 const empresaController = require('../controllers/empresaController');
 const AutenticarToken = require('../middlewares/auth');
+const upload = require('../config/multerFotoPerfil');
 
 
 // Cadastrar uma nova empresa
-router.post('/empresas', AutenticarToken, empresaController.CadastrarEmpresa);
+router.post('/empresas', AutenticarToken, upload.single('foto_perfil'), empresaController.CadastrarEmpresa);
 
 // Atualizar uma empresa
 router.put('/empresas/:id', AutenticarToken, empresaController.AtualizarEmpresa);

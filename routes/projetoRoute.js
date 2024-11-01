@@ -3,6 +3,7 @@ const router = express.Router();
 const projetoController = require('../controllers/projetoController'); 
 const { validateProjeto } = require('../middlewares/validarProjeto');
 const AutenticarToken = require('../middlewares/auth');
+const upload = require('../config/multerArquivos'); 
 
 // Listar projetos e filtrar
 router.get('/projetos', AutenticarToken, projetoController.VerProjetos);
@@ -11,10 +12,10 @@ router.get('/projetos', AutenticarToken, projetoController.VerProjetos);
 router.get('/projetos/:id', AutenticarToken, projetoController.SelecionarProjeto);
 
 // Criar projeto
-router.post('/projetos', AutenticarToken, validateProjeto, projetoController.CadastrarProjeto);
+router.post('/projetos', AutenticarToken, validateProjeto, upload.single('upload'), projetoController.CadastrarProjeto);
 
 // Atualizar projeto
-router.put('/projetos/:id', AutenticarToken, validateProjeto, projetoController.AtualizarProjeto);
+router.put('/projetos/:id', AutenticarToken, validateProjeto,upload.single('upload'), projetoController.AtualizarProjeto);
 
 // Deletar projeto
 router.delete('/projetos/:id', AutenticarToken, projetoController.DeletarProjeto);

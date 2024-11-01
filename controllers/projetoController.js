@@ -39,11 +39,9 @@ const SelecionarProjeto = async (req, res) => {
 // Cadastrar um projeto
 const CadastrarProjeto = async (req, res) => {
   const usuarioLogado = req.user;
-  let { programa_id, keywords } = req.body; // Incluímos 'keywords' no corpo da requisição
+  let { programa_id, keywords } = req.body;
 
   try {
-    console.log('Verificando programa com ID:', programa_id);
-
     const programa = await Programa.findByPk(programa_id, {
       include: { model: Rota, as: 'Rota' }
     });
@@ -52,43 +50,24 @@ const CadastrarProjeto = async (req, res) => {
       return res.status(404).json({ message: 'Programa não encontrado.' });
     }
 
-    console.log('Programa encontrado:', programa);
-
     if (usuarioLogado.tipo !== 'admin' && programa.Rota.empresa_id !== usuarioLogado.empresa_id) {
       return res.status(403).json({ message: 'Acesso negado.' });
     }
 
-    // Criar o projeto sem o campo 'impulso'
-    console.log('Criando novo projeto com os dados:', req.body);
-    const novoProjeto = await Projeto.create(req.body);  // Supondo que req.body não contém 'impulso'
+    // Cria o projeto e salva o caminho do arquivo, se disponível
+    const arquivoPath = req.file ? `/uploads/arquivos/${req.file.filename}` : null;
+    const novoProjeto = await Projeto.create({ ...req.body, arquivo: arquivoPath });
 
-    console.log('Novo projeto criado com ID:', novoProjeto.id);
-
-    // Verifica se 'keywords' é uma string e divide as palavras-chave se necessário
     if (typeof keywords === 'string') {
-      keywords = keywords.split(',').map(kw => kw.trim()); // Divida por vírgulas e remova espaços extras
+      keywords = keywords.split(',').map(kw => kw.trim());
     }
 
-    // Se houver keywords no corpo da requisição, associá-las ao projeto
     if (keywords && keywords.length > 0) {
-      console.log('Associando keywords:', keywords);
-
       for (const keywordNome of keywords) {
-        console.log('Processando keyword:', keywordNome);
-
-        // Verifica se a keyword já existe
         let keyword = await Keyword.findOne({ where: { nome: keywordNome } });
-
-        // Se a keyword não existir, cria uma nova
         if (!keyword) {
-          console.log(`Keyword não encontrada, criando nova keyword: ${keywordNome}`);
           keyword = await Keyword.create({ nome: keywordNome });
-        } else {
-          console.log(`Keyword encontrada: ${keywordNome}`);
         }
-
-        // Associa a keyword ao projeto
-        console.log(`Associando keyword ${keyword.id} ao projeto ${novoProjeto.id}`);
         await ProjetoKeyword.create({
           projeto_id: novoProjeto.id,
           keyword_id: keyword.id
@@ -99,11 +78,17 @@ const CadastrarProjeto = async (req, res) => {
     res.status(201).json(novoProjeto);
   } catch (error) {
     console.error('Erro ao criar o projeto:', error);
+
+    // Remove o arquivo se houver erro no cadastro
+    if (req.file && req.file.path) {
+      fs.unlink(req.file.path, (err) => {
+        if (err) console.error('Erro ao deletar arquivo:', err);
+      });
+    }
+
     res.status(500).json({ error: 'Erro ao criar o projeto.' });
   }
 };
-
-
 
 // Atualizar um projeto
 const AtualizarProjeto = async (req, res) => {
@@ -126,9 +111,27 @@ const AtualizarProjeto = async (req, res) => {
       return res.status(403).json({ message: 'Acesso negado.' });
     }
 
-    await projeto.update(req.body);
+    // Se houver um novo arquivo, exclui o antigo
+    const novoArquivoPath = req.file ? `/uploads/arquivos/${req.file.filename}` : null;
+    if (novoArquivoPath && projeto.arquivo) {
+      const caminhoAntigo = path.join(__dirname, '..', projeto.arquivo);
+      fs.unlink(caminhoAntigo, (err) => {
+        if (err) console.error('Erro ao deletar arquivo antigo:', err);
+      });
+    }
+
+    await projeto.update({ ...req.body, arquivo: novoArquivoPath || projeto.arquivo });
     res.status(200).json(projeto);
   } catch (error) {
+    console.error('Erro ao atualizar o projeto:', error);
+
+    // Remove o novo arquivo se houver erro
+    if (req.file && req.file.path) {
+      fs.unlink(req.file.path, (err) => {
+        if (err) console.error('Erro ao deletar novo arquivo:', err);
+      });
+    }
+
     res.status(500).json({ error: 'Erro ao atualizar o projeto.' });
   }
 };

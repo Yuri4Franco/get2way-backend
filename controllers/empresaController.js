@@ -1,5 +1,8 @@
 const Empresa = require('../models').Empresa;
 const Usuario = require('../models').Usuario;
+const upload = require('../config/multerFotoPerfil');
+const fs = require('fs');
+const path = require('path');
 
 // Função para verificar se o usuário é admin
 const VerificarAdmin = async (usuarioId) => {
@@ -7,7 +10,7 @@ const VerificarAdmin = async (usuarioId) => {
   return usuario.tipo === 'admin';
 };
 
-// Cadastrar uma nova Empresa (apenas admin pode)
+// Método para cadastrar a empresa com foto de perfil
 const CadastrarEmpresa = async (req, res) => {
   const usuarioLogado = req.user;
 
@@ -18,8 +21,11 @@ const CadastrarEmpresa = async (req, res) => {
       return res.status(403).json({ error: 'Acesso negado. Apenas administradores podem cadastrar empresas.' });
     }
 
-    const { nome, cnpj, razao_social, endereco, area, telefone, email, site, foto_perfil } = req.body;
+    // Extrai dados da requisição
+    const { nome, cnpj, razao_social, endereco, area, telefone, email, site } = req.body;
+    const fotoPerfilPath = req.file ? `/uploads/fotos/${req.file.filename}` : null;
 
+    // Cria nova empresa
     const novaEmpresa = await Empresa.create({
       nome,
       cnpj,
@@ -29,16 +35,27 @@ const CadastrarEmpresa = async (req, res) => {
       telefone,
       email,
       site,
-      foto_perfil
+      foto_perfil: fotoPerfilPath
     });
 
-    res.status(201).json(novaEmpresa);
+    res.status(201).json({
+      message: 'Empresa cadastrada com sucesso!',
+      empresa: novaEmpresa
+    });
   } catch (error) {
     console.error('Erro ao cadastrar empresa:', error);
+
+    // Remove a imagem se houver erro no processo
+    if (req.file && req.file.path) {
+      fs.unlink(req.file.path, (err) => {
+        if (err) console.error('Erro ao deletar imagem:', err);
+      });
+    }
     res.status(500).json({ error: 'Erro ao cadastrar a empresa.' });
   }
 };
 
+// Atualizar uma Empresa (apenas admin pode)
 // Atualizar uma Empresa (apenas admin pode)
 const AtualizarEmpresa = async (req, res) => {
   const usuarioLogado = req.user;
@@ -51,11 +68,20 @@ const AtualizarEmpresa = async (req, res) => {
     }
 
     const { id } = req.params;
-    const { nome, cnpj, razao_social, endereco, area, telefone, email, site, foto_perfil } = req.body;
+    const { nome, cnpj, razao_social, endereco, area, telefone, email, site } = req.body;
+    const novaFotoPerfilPath = req.file ? `/uploads/fotos/${req.file.filename}` : null;
 
     const empresa = await Empresa.findByPk(id);
     if (!empresa) {
       return res.status(404).json({ message: 'Empresa não encontrada.' });
+    }
+
+    // Se uma nova imagem de perfil foi enviada, remove a antiga
+    if (novaFotoPerfilPath && empresa.foto_perfil) {
+      const caminhoAntigo = path.join(__dirname, '..', empresa.foto_perfil);
+      fs.unlink(caminhoAntigo, (err) => {
+        if (err) console.error('Erro ao deletar imagem antiga:', err);
+      });
     }
 
     await empresa.update({
@@ -67,15 +93,26 @@ const AtualizarEmpresa = async (req, res) => {
       telefone,
       email,
       site,
-      foto_perfil
+      foto_perfil: novaFotoPerfilPath || empresa.foto_perfil // Mantém a antiga se não houver nova
     });
 
-    res.status(200).json(empresa);
+    res.status(200).json({
+      message: 'Empresa atualizada com sucesso!',
+      empresa
+    });
   } catch (error) {
     console.error('Erro ao atualizar empresa:', error);
+
+    // Remove a nova imagem se houver erro no processo
+    if (req.file && req.file.path) {
+      fs.unlink(req.file.path, (err) => {
+        if (err) console.error('Erro ao deletar nova imagem:', err);
+      });
+    }
     res.status(500).json({ error: 'Erro ao atualizar a empresa.' });
   }
 };
+
 
 // Deletar uma Empresa (apenas admin pode)
 const DeletarEmpresa = async (req, res) => {
