@@ -1,5 +1,6 @@
 const Ict = require('../models').Ict;
 const Usuario = require('../models').Usuario;
+const upload = require('../config/multerFotoPerfil');
 const fs = require('fs');
 const path = require('path');
 

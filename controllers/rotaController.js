@@ -3,11 +3,11 @@ const Empresa = require('../models').Empresa;
 
 // Criar uma nova Rota (Admin ou Empresa pode criar, mas empresa só pode criar para si mesma)
 const CadastrarRota = async (req, res) => {
-  const { role, empresa_id } = req.user;
+  const { tipo, empresa_id } = req.user;
 
   try {
     // Se não for admin, empresa só pode criar para ela mesma
-    if (role !== 'admin' && req.body.empresa_id !== empresa_id) {
+    if (tipo !== 'admin' && req.body.empresa_id !== empresa_id) {
       return res.status(403).json({ error: 'Você só pode criar rotas para sua própria empresa.' });
     }
 
@@ -21,15 +21,15 @@ const CadastrarRota = async (req, res) => {
 
 // Buscar todas as Rotas (Apenas Admin pode ver todas as rotas)
 const BuscarTodasRotas = async (req, res) => {
-  const { role, empresa_id } = req.user; // Obtendo o tipo de usuário e a empresa associada do token JWT
+  const { tipo, empresa_id } = req.user; // Obtendo o tipo de usuário e a empresa associada do token JWT
 
   try {
     let rotas;
 
     // Verifica se o usuário é um administrador
-    if (role === 'admin') {
+    if (tipo === 'admin') {
       rotas = await Rota.findAll(); // Administrador vê todas as rotas
-    } else if (role === 'empresa') {
+    } else if (tipo === 'empresa') {
       // Se for uma empresa, filtra as rotas pelo `empresa_id` associado
       rotas = await Rota.findAll({ where: { empresa_id } });
     } else {
@@ -44,7 +44,7 @@ const BuscarTodasRotas = async (req, res) => {
 
 // Atualizar uma Rota (Apenas admin ou a empresa dona pode atualizar a rota)
 const AtualizarRota = async (req, res) => {
-  const { role, empresa_id } = req.user;
+  const { tipo, empresa_id } = req.user;
 
   try {
     const rota = await Rota.findByPk(req.params.id);
@@ -54,7 +54,7 @@ const AtualizarRota = async (req, res) => {
     }
 
     // Se não for admin, a empresa só pode atualizar suas próprias rotas
-    if (role !== 'admin' && rota.empresa_id !== empresa_id) {
+    if (tipo !== 'admin' && rota.empresa_id !== empresa_id) {
       return res.status(403).json({ error: 'Você só pode atualizar rotas da sua própria empresa.' });
     }
 
@@ -72,7 +72,7 @@ const AtualizarRota = async (req, res) => {
 
 // Deletar uma Rota (Apenas admin ou a empresa dona pode deletar a rota)
 const DeletarRota = async (req, res) => {
-  const { role, empresa_id } = req.user;
+  const { tipo, empresa_id } = req.user;
 
   try {
     const rota = await Rota.findByPk(req.params.id);
@@ -82,7 +82,7 @@ const DeletarRota = async (req, res) => {
     }
 
     // Se não for admin, a empresa só pode deletar suas próprias rotas
-    if (role !== 'admin' && rota.empresa_id !== empresa_id) {
+    if (tipo !== 'admin' && rota.empresa_id !== empresa_id) {
       return res.status(403).json({ error: 'Você só pode deletar rotas da sua própria empresa.' });
     }
 
@@ -95,11 +95,11 @@ const DeletarRota = async (req, res) => {
 
 // Buscar rotas de uma empresa específica (somente admin pode ver)
 const BuscarRotasPorEmpresaId = async (req, res) => {
-  const { role } = req.user;
+  const { tipo } = req.user;
 
   try {
     // Verifica se o usuário é admin
-    if (role !== 'admin') {
+    if (tipo !== 'admin') {
       return res.status(403).json({ error: 'Acesso negado. Apenas administradores podem acessar esta rota.' });
     }
 

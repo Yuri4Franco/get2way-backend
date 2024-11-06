@@ -14,7 +14,7 @@ const CriarInteresse = async (req, res) => {
     const { oferta_id, proposta } = req.body;
 
     // Permitir que o admin ignore a verificação de empresa
-    if (usuarioLogado.role !== 'admin') {
+    if (usuarioLogado.tipo !== 'admin') {
       const oferta = await Oferta.findByPk(oferta_id, {
         include: {
           model: Projeto,
@@ -67,7 +67,7 @@ const BuscarInteressesPorOferta = async (req, res) => {
             model: Programa,
             include: {
               model: Rota,
-              where: usuarioLogado.role === 'admin' ? {} : { empresa_id: usuarioLogado.empresa_id }
+              where: usuarioLogado.tipo === 'admin' ? {} : { empresa_id: usuarioLogado.empresa_id }
             }
           }
         }
@@ -104,7 +104,7 @@ const DetalharInteressePorUsuario = async (req, res) => {
                 model: Programa,
                 include: {
                   model: Rota,
-                  where: usuarioLogado.role === 'admin' ? {} : { empresa_id: usuarioLogado.empresa_id }
+                  where: usuarioLogado.tipo === 'admin' ? {} : { empresa_id: usuarioLogado.empresa_id }
                 }
               }
             }
@@ -139,7 +139,7 @@ const RejeitarInteresse = async (req, res) => {
             model: Programa,
             include: {
               model: Rota,
-              where: usuarioLogado.role === 'admin' ? {} : { empresa_id: usuarioLogado.empresa_id }
+              where: usuarioLogado.tipo === 'admin' ? {} : { empresa_id: usuarioLogado.empresa_id }
             }
           }
         }
@@ -176,7 +176,7 @@ const ListarInteressesPorUsuario = async (req, res) => {
                   model: Programa,
                   include: {
                     model: Rota,
-                    where: usuarioLogado.role === 'admin' ? {} : { empresa_id: usuarioLogado.empresa_id }
+                    where: usuarioLogado.tipo === 'admin' ? {} : { empresa_id: usuarioLogado.empresa_id }
                   }
                 }
               }

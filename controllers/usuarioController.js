@@ -4,6 +4,37 @@ const enviarEmail = require('../services/emailService');
 const { Op } = require('sequelize');
 const bcrypt = require('bcryptjs');
 
+// Trocar senha primeiro acesso:
+const TrocarSenhaPrimeiroAcesso = async (req, res) => {
+  const usuarioLogado = req.user;
+  const { novaSenha } = req.body;
+
+  try {
+    // Buscar o usuário no banco de dados
+    const usuario = await Usuario.findByPk(usuarioLogado.id);
+
+    if (!usuario) {
+      return res.status(404).json({ message: 'Usuário não encontrado.' });
+    }
+
+    // Verifica se é o primeiro acesso e atualiza a senha
+    if (usuario.primeiro_acesso) {
+      const novaSenhaHash = await bcrypt.hash(novaSenha, 10);
+
+      usuario.senha = novaSenhaHash;
+      usuario.primeiro_acesso = false; // Atualiza o campo para false após a troca de senha
+      await usuario.save();
+
+      res.status(200).json({ message: 'Senha atualizada com sucesso. Primeiro acesso concluído.' });
+    } else {
+      res.status(403).json({ message: 'A troca de senha inicial já foi realizada.' });
+    }
+  } catch (error) {
+    console.error('Erro ao trocar senha:', error);
+    res.status(500).json({ error: 'Erro ao trocar senha.' });
+  }
+};
+
 
 // Responsavel cadastra outro responsavel
 const ResponsavelCadastrarUsuario = async (req, res) => {
@@ -25,12 +56,12 @@ const ResponsavelCadastrarUsuario = async (req, res) => {
     let empresa_id = null;
     let ict_id = null;
 
-    if (usuarioLogado.role === 'empresa') {
+    if (usuarioLogado.tipo === 'empresa') {
       empresa_id = responsavelLogado.empresa_id;
       if (!empresa_id) {
         return res.status(403).json({ error: 'Empresa não associada ao responsável logado.' });
       }
-    } else if (usuarioLogado.role === 'ict') {
+    } else if (usuarioLogado.tipo === 'ict') {
       ict_id = responsavelLogado.ict_id;
       if (!ict_id) {
         return res.status(403).json({ error: 'ICT não associada ao responsável logado.' });
@@ -44,7 +75,7 @@ const ResponsavelCadastrarUsuario = async (req, res) => {
       nome,
       email,
       senha: senhaHash,
-      tipo: usuarioLogado.role, // O tipo é forçado a ser igual ao do responsável
+      tipo: usuarioLogado.tipo, // O tipo é forçado a ser igual ao do responsável
       primeiro_acesso: true,
       endereco,
       telefone,
@@ -236,5 +267,6 @@ module.exports = {
   VerUsuario,
   VerTodosUsuarios,
   BuscarUsuarioDinamico,
-  ResponsavelCadastrarUsuario
+  ResponsavelCadastrarUsuario,
+  TrocarSenhaPrimeiroAcesso
 };

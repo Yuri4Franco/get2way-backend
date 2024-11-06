@@ -56,34 +56,44 @@ const CadastrarEmpresa = async (req, res) => {
 };
 
 // Atualizar uma Empresa (apenas admin pode)
-// Atualizar uma Empresa (apenas admin pode)
 const AtualizarEmpresa = async (req, res) => {
   const usuarioLogado = req.user;
+  console.log('Iniciando atualização da empresa. Usuário logado:', usuarioLogado);
 
   try {
     const isAdmin = await VerificarAdmin(usuarioLogado.id);
+    console.log('Verificação de administrador concluída:', isAdmin);
 
     if (!isAdmin) {
+      console.log('Acesso negado para usuário não administrador');
       return res.status(403).json({ error: 'Acesso negado. Apenas administradores podem atualizar empresas.' });
     }
 
     const { id } = req.params;
     const { nome, cnpj, razao_social, endereco, area, telefone, email, site } = req.body;
     const novaFotoPerfilPath = req.file ? `/uploads/fotos/${req.file.filename}` : null;
+    console.log('Dados recebidos:', { id, nome, cnpj, razao_social, endereco, area, telefone, email, site, novaFotoPerfilPath });
 
     const empresa = await Empresa.findByPk(id);
     if (!empresa) {
+      console.log('Empresa não encontrada com ID:', id);
       return res.status(404).json({ message: 'Empresa não encontrada.' });
     }
+    console.log('Empresa encontrada:', empresa);
 
     // Se uma nova imagem de perfil foi enviada, remove a antiga
     if (novaFotoPerfilPath && empresa.foto_perfil) {
       const caminhoAntigo = path.join(__dirname, '..', empresa.foto_perfil);
       fs.unlink(caminhoAntigo, (err) => {
-        if (err) console.error('Erro ao deletar imagem antiga:', err);
+        if (err) {
+          console.error('Erro ao deletar imagem antiga:', err);
+        } else {
+          console.log('Imagem antiga deletada com sucesso:', caminhoAntigo);
+        }
       });
     }
 
+    // Atualiza a empresa
     await empresa.update({
       nome,
       cnpj,
@@ -95,6 +105,7 @@ const AtualizarEmpresa = async (req, res) => {
       site,
       foto_perfil: novaFotoPerfilPath || empresa.foto_perfil // Mantém a antiga se não houver nova
     });
+    console.log('Empresa atualizada com sucesso:', empresa);
 
     res.status(200).json({
       message: 'Empresa atualizada com sucesso!',
@@ -106,7 +117,11 @@ const AtualizarEmpresa = async (req, res) => {
     // Remove a nova imagem se houver erro no processo
     if (req.file && req.file.path) {
       fs.unlink(req.file.path, (err) => {
-        if (err) console.error('Erro ao deletar nova imagem:', err);
+        if (err) {
+          console.error('Erro ao deletar nova imagem:', err);
+        } else {
+          console.log('Nova imagem deletada com sucesso:', req.file.path);
+        }
       });
     }
     res.status(500).json({ error: 'Erro ao atualizar a empresa.' });

@@ -170,7 +170,7 @@ const ListarContratos = async (req, res) => {
   try {
     let contratos;
 
-    if (usuarioLogado.role === 'empresa') {
+    if (usuarioLogado.tipo === 'empresa') {
       contratos = await Contrato.findAll({
         include: {
           model: Interesse,
@@ -186,7 +186,7 @@ const ListarContratos = async (req, res) => {
           }
         }
       });
-    } else if (usuarioLogado.role === 'ict') {
+    } else if (usuarioLogado.tipo === 'ict') {
       contratos = await Contrato.findAll({
         include: {
           model: Interesse,

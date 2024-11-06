@@ -15,14 +15,6 @@ const verificarRotaDaEmpresa = async (empresaId, rotaId) => {
     return rota && rota.empresa_id === empresaId;
   };
   
-
-// Função para verificar se o programa pertence à empresa do usuário logado
-const verificarProgramaDaEmpresa = async (usuarioId, programaId) => {
-  const usuario = await Usuario.findByPk(usuarioId);
-  const programa = await Programa.findByPk(programaId);
-  return programa && programa.empresa_id === usuario.empresa_id;
-};
-
 // Criar um novo Programa (empresas podem criar apenas programas em suas rotas)
 const CadastrarPrograma = async (req, res) => {
     const usuarioLogado = req.user;
@@ -31,9 +23,11 @@ const CadastrarPrograma = async (req, res) => {
     try {
       // Verificar se o usuário é admin
       const isAdmin = await VerificarAdmin(usuarioLogado.id);
+      console.log('Verificação de admin concluída:', isAdmin);
   
       // Se o usuário for empresa, verificar se a rota pertence à empresa dele antes de cadastrar o programa
       if (!isAdmin) {
+        console.log('é empresa');
         const rotaPertenceEmpresa = await verificarRotaDaEmpresa(usuarioLogado.empresa_id, rota_id);
         if (!rotaPertenceEmpresa) {
           return res.status(403).json({ error: 'Acesso negado. A rota selecionada deve pertencer à sua empresa.' });

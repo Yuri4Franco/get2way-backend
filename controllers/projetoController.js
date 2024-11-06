@@ -56,7 +56,7 @@ const CadastrarProjeto = async (req, res) => {
 
     // Cria o projeto e salva o caminho do arquivo, se disponível
     const arquivoPath = req.file ? `/uploads/arquivos/${req.file.filename}` : null;
-    const novoProjeto = await Projeto.create({ ...req.body, arquivo: arquivoPath });
+    const novoProjeto = await Projeto.create({ ...req.body, upload: arquivoPath });
 
     if (typeof keywords === 'string') {
       keywords = keywords.split(',').map(kw => kw.trim());
@@ -113,14 +113,14 @@ const AtualizarProjeto = async (req, res) => {
 
     // Se houver um novo arquivo, exclui o antigo
     const novoArquivoPath = req.file ? `/uploads/arquivos/${req.file.filename}` : null;
-    if (novoArquivoPath && projeto.arquivo) {
-      const caminhoAntigo = path.join(__dirname, '..', projeto.arquivo);
+    if (novoArquivoPath && projeto.upload) {
+      const caminhoAntigo = path.join(__dirname, '..', projeto.upload);
       fs.unlink(caminhoAntigo, (err) => {
         if (err) console.error('Erro ao deletar arquivo antigo:', err);
       });
     }
 
-    await projeto.update({ ...req.body, arquivo: novoArquivoPath || projeto.arquivo });
+    await projeto.update({ ...req.body, upload: novoArquivoPath || projeto.upload });
     res.status(200).json(projeto);
   } catch (error) {
     console.error('Erro ao atualizar o projeto:', error);

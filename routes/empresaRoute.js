@@ -9,7 +9,7 @@ const upload = require('../config/multerFotoPerfil');
 router.post('/empresas', AutenticarToken, upload.single('foto_perfil'), empresaController.CadastrarEmpresa);
 
 // Atualizar uma empresa
-router.put('/empresas/:id', AutenticarToken, empresaController.AtualizarEmpresa);
+router.put('/empresas/:id', AutenticarToken, upload.single('foto_perfil'), empresaController.AtualizarEmpresa);
 
 // Deletar uma empresa
 router.delete('/empresas/:id', AutenticarToken, empresaController.DeletarEmpresa);  

@@ -25,7 +25,7 @@ const CadastrarOferta = async (req, res) => {
       return res.status(404).json({ message: 'Projeto não encontrado.' });
     }
 
-    if (usuarioLogado.role !== 'admin' && projeto.Programa.Rota.empresa_id !== usuarioLogado.empresa_id) {
+    if (usuarioLogado.tipo !== 'admin' && projeto.Programa.Rota.empresa_id !== usuarioLogado.empresa_id) {
       return res.status(403).json({ message: 'Acesso negado. Este projeto não pertence à sua empresa.' });
     }
 
@@ -55,11 +55,11 @@ const VerOfertas = async (req, res) => {
     let whereConditions = {};
     let projetoConditions = {};
 
-    if (usuarioLogado.role === 'empresa') {
+    if (usuarioLogado.tipo === 'empresa') {
       whereConditions = {
         '$Projeto.Programa.Rota.empresa_id$': usuarioLogado.empresa_id
       };
-    } else if (usuarioLogado.role === 'ict') {
+    } else if (usuarioLogado.tipo === 'ict') {
       whereConditions.status = 'ATIVO';
       if (empresa_id) {
         projetoConditions['$Programa.Rota.empresa_id$'] = empresa_id;
@@ -85,7 +85,7 @@ const VerOfertas = async (req, res) => {
               include: {
                 model: Rota,
                 as: 'Rota',
-                where: usuarioLogado.role === 'empresa' ? { empresa_id: usuarioLogado.empresa_id } : undefined
+                where: usuarioLogado.tipo === 'empresa' ? { empresa_id: usuarioLogado.empresa_id } : undefined
               }
             },
             {
@@ -129,11 +129,11 @@ const SelecionarOferta = async (req, res) => {
       return res.status(404).json({ error: 'Oferta não encontrada.' });
     }
 
-    if (usuarioLogado.role === 'empresa' && oferta.Projeto.Programa.Rota.empresa_id !== usuarioLogado.empresa_id) {
+    if (usuarioLogado.tipo === 'empresa' && oferta.Projeto.Programa.Rota.empresa_id !== usuarioLogado.empresa_id) {
       return res.status(403).json({ message: 'Acesso negado. Esta oferta não pertence à sua empresa.' });
     }
 
-    if (usuarioLogado.role === 'ict' && oferta.status !== 'ATIVO') {
+    if (usuarioLogado.tipo === 'ict' && oferta.status !== 'ATIVO') {
       return res.status(403).json({ message: 'Acesso negado. A oferta não está ativa.' });
     }
 
@@ -167,7 +167,7 @@ const AtualizarOferta = async (req, res) => {
       return res.status(404).json({ message: 'Oferta não encontrada.' });
     }
 
-    if (usuarioLogado.role !== 'admin' && oferta.Projeto.Programa.Rota.empresa_id !== usuarioLogado.empresa_id) {
+    if (usuarioLogado.tipo !== 'admin' && oferta.Projeto.Programa.Rota.empresa_id !== usuarioLogado.empresa_id) {
       return res.status(403).json({ message: 'Acesso negado. Esta oferta não pertence à sua empresa.' });
     }
 
@@ -205,7 +205,7 @@ const DeletarOferta = async (req, res) => {
       return res.status(404).json({ message: 'Oferta não encontrada.' });
     }
 
-    if (usuarioLogado.role !== 'admin' && oferta.Projeto.Programa.Rota.empresa_id !== usuarioLogado.empresa_id) {
+    if (usuarioLogado.tipo !== 'admin' && oferta.Projeto.Programa.Rota.empresa_id !== usuarioLogado.empresa_id) {
       return res.status(403).json({ message: 'Acesso negado. Esta oferta não pertence à sua empresa.' });
     }
 
