@@ -7,10 +7,10 @@ const AutenticarToken = require('../middlewares/auth');
 router.post('/interesses', AutenticarToken, interesseController.CriarInteresse);
 
 // Rota para listar todos os interesses de uma oferta
-router.get('/interesses/oferta/:oferta_id', AutenticarToken, interesseController.BuscarInteressesPorOferta);
+router.get('/interesses/oferta/:ofertaId', AutenticarToken, interesseController.BuscarInteressesPorOferta);
 
-// Rota para detalhar o interesse de um usuário específico em uma oferta
-router.get('/interesses/oferta/:oferta_id/usuario/:usuarioId', AutenticarToken,  interesseController.DetalharInteressePorUsuario);
+// Selecionar interesse por ID
+router.get('/interesses/:interesse_id', AutenticarToken, interesseController.SelecionarInteresse);
 
 // Rota para listar todos os interesses de um usuário
 router.get('/interesses/usuario/:usuarioId', AutenticarToken, interesseController.ListarInteressesPorUsuario);

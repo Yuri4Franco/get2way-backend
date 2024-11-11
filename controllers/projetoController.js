@@ -5,6 +5,8 @@ const Programa = require('../models').Programa;
 const Rota = require('../models').Rota;
 const Keyword = require('../models').Keyword;
 const ProjetoKeyword = require('../models').ProjetoKeyword;
+const fs = require('fs');
+const path = require('path');
 
 // Selecionar o projeto
 const SelecionarProjeto = async (req, res) => {  

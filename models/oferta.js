@@ -4,8 +4,7 @@ module.exports = (sequelize, DataTypes) => {
   class Oferta extends Model {
     static associate(models) {
       Oferta.hasMany(models.Interesse, {
-        foreignKey: 'oferta_id',
-        as: 'interesses', // Alias para facilitar a busca
+        foreignKey: 'oferta_id', as: 'interesses'
       });
       Oferta.belongsTo(models.Projeto, {
         foreignKey: 'projeto_id',
@@ -14,8 +13,6 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   Oferta.init({
-    data_inicio: DataTypes.DATE,
-    data_fim: DataTypes.DATE,
     projeto_id: DataTypes.INTEGER,
     status: DataTypes.STRING
   }, {

@@ -1,21 +1,31 @@
-const { body, validationResult } = require('express-validator');
+const multer = require('multer');
+const { check, validationResult } = require('express-validator');
+
+// Configuração do multer
+const upload = multer();
 
 const validateProjeto = [
-  body('nome')
+  // Middleware para lidar com multipart/form-data
+  upload.none(),
+
+  check('nome')
     .notEmpty().withMessage('Nome é obrigatório')
     .isLength({ max: 100 }).withMessage('Nome pode ter no máximo 100 caracteres'),
 
-  body('descricao')
+  check('descricao')
     .notEmpty().withMessage('Descrição é obrigatória')
     .isLength({ max: 255 }).withMessage('Descrição pode ter no máximo 255 caracteres'),
 
-  body('trl')
-    .isInt({ min: 1, max: 9 }).withMessage('trl deve ser um número entre 1 e 9'),
+  check('trl')
+    .notEmpty().withMessage('TRL é obrigatório')
+    .isInt({ min: 1, max: 9 }).withMessage('TRL deve ser um número entre 1 e 9'),
 
-  body('data_inicio')
+  check('data_inicio')
+    .notEmpty().withMessage('Data de início é obrigatória')
     .isISO8601().withMessage('Data de início deve estar no formato YYYY-MM-DD'),
 
-  body('data_fim')
+  check('data_fim')
+    .optional()
     .isISO8601().withMessage('Data de fim deve estar no formato YYYY-MM-DD')
     .custom((value, { req }) => {
       if (new Date(value) < new Date(req.body.data_inicio)) {
@@ -24,59 +34,59 @@ const validateProjeto = [
       return true;
     }),
 
-  body('justificativas')
-    .notEmpty().withMessage('Justificativas são obrigatórias')
+  check('justificativas')
+    .optional()
     .isLength({ min: 10, max: 255 }).withMessage('Justificativas devem ter entre 10 e 255 caracteres'),
 
-  body('objsmart')
-    .notEmpty().withMessage('Objetivos SMART são obrigatórios')
+  check('objsmart')
+    .optional()
     .isLength({ min: 10, max: 255 }).withMessage('Objetivos SMART devem ter entre 10 e 255 caracteres'),
 
-  body('beneficios')
-    .notEmpty().withMessage('Benefícios são obrigatórios')
+  check('beneficios')
+    .optional()
     .isLength({ min: 10, max: 255 }).withMessage('Benefícios devem ter entre 10 e 255 caracteres'),
 
-  body('produto')
-    .notEmpty().withMessage('Produto é obrigatório')
+  check('produto')
+    .optional()
     .isLength({ max: 255 }).withMessage('Produto pode ter no máximo 255 caracteres'),
 
-  body('requisitos')
-    .notEmpty().withMessage('Requisitos são obrigatórios')
+  check('requisitos')
+    .optional()
     .isLength({ min: 10, max: 255 }).withMessage('Requisitos devem ter entre 10 e 255 caracteres'),
 
-  body('steakholders')
-    .notEmpty().withMessage('Stakeholders são obrigatórios')
+  check('steakholders')
+    .optional()
     .isLength({ max: 255 }).withMessage('Stakeholders podem ter no máximo 255 caracteres'),
 
-  body('equipe')
-    .notEmpty().withMessage('Equipe é obrigatória')
+  check('equipe')
+    .optional()
     .isLength({ max: 255 }).withMessage('Equipe pode ter no máximo 255 caracteres'),
 
-  body('premissas')
-    .notEmpty().withMessage('Premissas são obrigatórias')
+  check('premissas')
+    .optional()
     .isLength({ max: 255 }).withMessage('Premissas podem ter no máximo 255 caracteres'),
 
-  body('grupo_de_entrega')
-    .notEmpty().withMessage('Grupo de entrega é obrigatório')
+  check('grupo_de_entrega')
+    .optional()
     .isLength({ max: 255 }).withMessage('Grupo de entrega pode ter no máximo 255 caracteres'),
 
-  body('restricoes')
+  check('restricoes')
     .optional()
     .isLength({ min: 10, max: 255 }).withMessage('Restrições devem ter entre 10 e 255 caracteres'),
 
-  body('riscos')
+  check('riscos')
     .optional()
     .isLength({ min: 10, max: 255 }).withMessage('Riscos devem ter entre 10 e 255 caracteres'),
 
-  body('linha_do_tempo')
+  check('linha_do_tempo')
     .optional()
     .isLength({ max: 255 }).withMessage('Linha do tempo pode ter no máximo 255 caracteres'),
 
-  body('custos')
+  check('custos')
     .optional()
     .isLength({ max: 255 }).withMessage('Custos podem ter no máximo 255 caracteres'),
 
-  body('upload')
+  check('upload')
     .optional()
     .isLength({ max: 255 }).withMessage('Upload pode ter no máximo 255 caracteres'),
 
