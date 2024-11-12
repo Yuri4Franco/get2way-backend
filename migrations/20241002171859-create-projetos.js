@@ -96,6 +96,15 @@ module.exports = {
         type: Sequelize.STRING(255),
         allowNull: true,
       },
+      responsavel_id: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'usuarios',
+          key: 'id',
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
+      },
       programa_id: {
         type: Sequelize.INTEGER,
         references: {

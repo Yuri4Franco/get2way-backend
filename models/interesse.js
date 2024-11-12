@@ -4,7 +4,7 @@ module.exports = (sequelize, DataTypes) => {
   class Interesse extends Model {
     static associate(models) {
       Interesse.belongsTo(models.Oferta, {
-        foreignKey: 'oferta_id', as: 'ofertas'
+        foreignKey: 'oferta_id', as: 'Oferta'
       });
       Interesse.hasOne(models.Contrato, {
         foreignKey: 'interesse_id',

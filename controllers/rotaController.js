@@ -42,6 +42,29 @@ const BuscarTodasRotas = async (req, res) => {
   }
 };
 
+// Selecionar uma Rota específica (Apenas admin ou a empresa dona pode visualizar a rota)
+const SelecionarRota = async (req, res) => {
+  const { tipo, empresa_id } = req.user;
+
+  try {
+    const rota = await Rota.findByPk(req.params.id);
+
+    if (!rota) {
+      return res.status(404).json({ error: 'Rota não encontrada' });
+    }
+
+    // Se não for admin, a empresa só pode visualizar suas próprias rotas
+    if (tipo !== 'admin' && rota.empresa_id !== empresa_id) {
+      return res.status(403).json({ error: 'Você só pode visualizar rotas da sua própria empresa.' });
+    }
+
+    res.status(200).json(rota);
+  } catch (error) {
+    console.error('Erro ao selecionar rota:', error);
+    res.status(500).json({ error: 'Erro ao selecionar rota' });
+  }
+};
+
 // Atualizar uma Rota (Apenas admin ou a empresa dona pode atualizar a rota)
 const AtualizarRota = async (req, res) => {
   const { tipo, empresa_id } = req.user;
@@ -120,6 +143,7 @@ const BuscarRotasPorEmpresaId = async (req, res) => {
 module.exports = {
   CadastrarRota,
   BuscarTodasRotas,
+  SelecionarRota,
   AtualizarRota,
   DeletarRota,
   BuscarRotasPorEmpresaId

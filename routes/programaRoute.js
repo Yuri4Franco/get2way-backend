@@ -6,6 +6,9 @@ const AutenticarToken = require('../middlewares/auth');
 // Rota para criar um novo Programa
 router.post('/programas', AutenticarToken, programaController.CadastrarPrograma);
 
+// Selecionar um Programa por ID
+router.get('/programas/:id', AutenticarToken, programaController.SelecionarPrograma);
+
 // Rota para buscar todos os Programas
 router.get('/programas', AutenticarToken, programaController.BuscarTodosProgramas);   
 

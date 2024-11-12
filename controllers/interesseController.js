@@ -91,7 +91,7 @@ const SelecionarInteresse = async (req, res) => {
     const interesse = await Interesse.findByPk(interesse_id, {
       include: {
         model: Oferta,
-        as: 'ofertas',
+        as: 'Oferta',
         include: {
           model: Projeto,
           include: {
@@ -172,7 +172,7 @@ const ListarInteressesPorUsuario = async (req, res) => {
           include: [
             {
               model: Oferta,
-              as: 'ofertas',
+              as: 'Oferta',
               include: {
                 model: Projeto,
                 include: {

@@ -72,6 +72,41 @@ const BuscarTodosProgramas = async (req, res) => {
       res.status(500).json({ error: 'Erro ao buscar programas' });
     }
   };
+  const SelecionarPrograma = async (req, res) => {
+    const usuarioLogado = req.user;
+  
+    try {
+      console.log("Buscando programa com ID:", req.params.id);
+      
+      // Buscar o programa e incluir a Rota associada
+      const programa = await Programa.findByPk(req.params.id, {
+        include: {
+          model: Rota,
+          as: 'Rota' // Certifique-se de que o alias está correto
+        },
+      });
+  
+      if (!programa) {
+        return res.status(404).json({ error: 'Programa não encontrado' });
+      }
+  
+      console.log("Rota associada ao programa:", programa.Rota);
+  
+      const isAdmin = usuarioLogado.tipo === 'admin';
+      const isProprietario = programa.Rota.empresa_id === usuarioLogado.empresa_id;
+  
+      // Verifica se o usuário é admin ou o proprietário do programa
+      if (!isAdmin && !isProprietario) {
+        return res.status(403).json({ error: 'Acesso negado. Você só pode visualizar seus próprios programas.' });
+      }
+  
+      // Se a verificação passar, retorna o programa
+      res.status(200).json(programa);
+    } catch (error) {
+      console.error('Erro ao selecionar programa:', error);
+      res.status(500).json({ error: 'Erro ao selecionar programa' });
+    }
+  };
 
 // Atualizar um Programa (apenas admin ou empresa proprietária)
 const AtualizarPrograma = async (req, res) => {
@@ -160,6 +195,7 @@ const DeletarPrograma = async (req, res) => {
 module.exports = {
   CadastrarPrograma,
   BuscarTodosProgramas,
+  SelecionarPrograma,
   AtualizarPrograma,
   DeletarPrograma,
 };

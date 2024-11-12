@@ -9,6 +9,9 @@ router.post('/rotas', AutenticarToken, rotaController.CadastrarRota);
 // Rota para buscar todas as rotas
 router.get('/rotas', AutenticarToken, rotaController.BuscarTodasRotas);
 
+// Selecionar rota por ID
+router.get('/rotas/:id', AutenticarToken, rotaController.SelecionarRota);
+
 // Rota para atualizar uma rota
 router.put('/rotas/:id', AutenticarToken, rotaController.AtualizarRota);
 

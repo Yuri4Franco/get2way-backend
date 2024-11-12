@@ -14,12 +14,10 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   Contrato.init({
-    data_inicio: DataTypes.STRING,
-    data_fim: DataTypes.STRING,
+    data_inicio: DataTypes.DATE,
+    data_fim: DataTypes.DATE,
     status: DataTypes.STRING,
-    projeto_id: DataTypes.INTEGER,
     interesse_id: DataTypes.INTEGER,
-    usuario_id: DataTypes.INTEGER
   }, {
     sequelize,
     modelName: 'Contrato',
