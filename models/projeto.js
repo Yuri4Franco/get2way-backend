@@ -2,6 +2,7 @@
 const {
   Model
 } = require('sequelize');
+const responsavel = require('./responsavel');
 module.exports = (sequelize, DataTypes) => {
   class Projeto extends Model {
     /**
@@ -44,7 +45,8 @@ module.exports = (sequelize, DataTypes) => {
     linha_do_tempo: DataTypes.STRING,
     custos: DataTypes.STRING,
     upload: DataTypes.STRING,
-    programa_id: DataTypes.INTEGER
+    programa_id: DataTypes.INTEGER,
+    usuario_id: DataTypes.INTEGER
   }, {
     sequelize,
     modelName: 'Projeto',

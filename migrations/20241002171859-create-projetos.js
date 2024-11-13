@@ -96,7 +96,11 @@ module.exports = {
         type: Sequelize.STRING(255),
         allowNull: true,
       },
-      responsavel_id: {
+      estilo: {
+        type: Sequelize.JSON,
+        allowNull: true,
+      },
+      usuario_id: {
         type: Sequelize.INTEGER,
         references: {
           model: 'usuarios',

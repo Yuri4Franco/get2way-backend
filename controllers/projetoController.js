@@ -42,6 +42,7 @@ const SelecionarProjeto = async (req, res) => {
 const CadastrarProjeto = async (req, res) => {
   const usuarioLogado = req.user;
   let { programa_id, keywords } = req.body;
+  usuario_id = req.user.empresa_id;
 
   try {
     const programa = await Programa.findByPk(programa_id, {
@@ -58,7 +59,7 @@ const CadastrarProjeto = async (req, res) => {
 
     // Cria o projeto e salva o caminho do arquivo, se disponível
     const arquivoPath = req.file ? `/uploads/arquivos/${req.file.filename}` : null;
-    const novoProjeto = await Projeto.create({ ...req.body, upload: arquivoPath });
+    const novoProjeto = await Projeto.create({ ...req.body, usuario_id, upload: arquivoPath });
 
     if (typeof keywords === 'string') {
       keywords = keywords.split(',').map(kw => kw.trim());

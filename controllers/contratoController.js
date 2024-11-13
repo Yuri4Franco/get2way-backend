@@ -17,9 +17,6 @@ const AceitarInteresse = async (req, res) => {
   const t = await sequelize.transaction(); // Inicia uma transação
 
   try {
-    console.log('Usuário logado:', usuarioLogado);
-    console.log('Verificando interesse ID:', interesse_id);
-
     const interesse = await Interesse.findByPk(interesse_id, {
       include: {
         model: Oferta,
@@ -31,15 +28,13 @@ const AceitarInteresse = async (req, res) => {
               model: Programa,
               include: {
                 model: Rota,
-                include: {
-                  model: Usuario, // Assumindo que Usuario representa ICT e contém o email
-                  as: 'ict_usuario' // Ajuste para o alias correto, se necessário
-                }
+                as: 'Rota',
+                attributes: ['empresa_id'], // Inclui o empresa_id da rota para verificação
               }
             },
             {
               model: Usuario, // Responsável pelo projeto
-              as: 'responsavel', // Ajuste o alias conforme necessário
+              as: 'Responsavel', // Ajuste o alias conforme necessário
               attributes: ['nome', 'email', 'telefone'] // Dados do responsável
             }
           ]
@@ -48,23 +43,17 @@ const AceitarInteresse = async (req, res) => {
       transaction: t
     });
 
-    if (!interesse) {
-      console.log('Interesse não encontrado.');
+    if (!interesse || !interesse.Oferta) {
       await t.rollback();
-      return res.status(404).json({ message: 'Interesse não encontrado.' });
+      return res.status(404).json({ message: 'Interesse ou oferta não encontrado.' });
     }
 
-    if (!interesse.Oferta) {
-      console.log('Oferta associada ao interesse não encontrada.');
-      await t.rollback();
-      return res.status(404).json({ message: 'Oferta associada ao interesse não encontrada.' });
-    }
-
+    // Verificar se o usuário é admin ou se é uma empresa autorizada
     const isAdmin = usuarioLogado.tipo === 'admin';
-    const isAuthorized = isAdmin;
+    const rotaEmpresaId = interesse.Oferta.Projeto.Programa.Rota.empresa_id;
+    const isEmpresaAutorizada = usuarioLogado.tipo === 'empresa' && usuarioLogado.empresa_id === rotaEmpresaId;
 
-    if (!isAuthorized) {
-      console.log('Acesso negado.');
+    if (!isAdmin && !isEmpresaAutorizada) {
       await t.rollback();
       return res.status(403).json({ message: 'Acesso negado.' });
     }
@@ -76,39 +65,55 @@ const AceitarInteresse = async (req, res) => {
       data_inicio: new Date(),
     }, { transaction: t });
 
-    console.log('Contrato formalizado:', novoContrato);
-
     // Atualizar o status do projeto e da oferta
     const projeto = interesse.Oferta.Projeto;
     projeto.status = 'EM ANDAMENTO';
     await projeto.save({ transaction: t });
-    console.log('Status do projeto atualizado para EM ANDAMENTO');
 
     const oferta = interesse.Oferta;
     oferta.status = 'ENCERRADA';
     await oferta.save({ transaction: t });
-    console.log('Status da oferta atualizado para ENCERRADA');
 
     // Remover outros interesses associados à mesma oferta
-    await Interesse.destroy({ where: { oferta_id: oferta.id, id: { [Op.ne]: interesse_id } }, transaction: t });
-    console.log('Interesses removidos com sucesso');
+    await Interesse.destroy({
+      where: { oferta_id: oferta.id, id: { [Op.ne]: interesse_id } },
+      transaction: t
+    });
 
-    // Obter o e-mail do usuário ICT associado ao projeto
-    const ictUsuario = interesse.Oferta.Projeto.Programa.Rota.ict_usuario; // Acesse o e-mail
-    const responsavelProjeto = interesse.Oferta.Projeto.responsavel; // Obter dados do responsável pelo projeto
+    // Obter o e-mail do interessado e os dados do responsável pelo projeto
+    console.log('Buscando interessado pelo usuario_id:', interesse.usuario_id);
+    const interessado = await Usuario.findByPk(interesse.usuario_id);
 
-    if (ictUsuario && responsavelProjeto) {
-      const { email, nome } = ictUsuario;
-      const { nome: nomeResponsavel, email: emailResponsavel, telefone } = responsavelProjeto;
+    console.log('Buscando responsável pelo projeto...');
+    const responsavelProjeto = interesse.Oferta.Projeto.Responsavel;
 
-      await enviarEmail(
-        email,
-        'Interesse Aceito - Gate2Way',
-        `Olá ${nome},\n\nSeu interesse no projeto "${projeto.nome}" foi aceito! Entre em contato com o responsável pelo projeto para mais detalhes:\n\nNome: ${nomeResponsavel}\nEmail: ${emailResponsavel}\nTelefone: ${telefone}\n\nAtenciosamente,\nEquipe Gate2Way`
-      );
-      console.log('E-mail enviado para o usuário ICT:', email);
+    // Log para verificar se os dados do interessado e responsável foram obtidos corretamente
+    if (interessado) {
+      console.log('Interessado encontrado:', { nome: interessado.nome, email: interessado.email });
     } else {
-      console.log('Usuário ICT associado ou responsável pelo projeto não encontrado.');
+      console.log('Interessado não encontrado.');
+    }
+
+    if (responsavelProjeto) {
+      console.log('Responsável pelo projeto encontrado:', {
+        nome: responsavelProjeto.nome,
+        email: responsavelProjeto.email,
+        telefone: responsavelProjeto.telefone
+      });
+    } else {
+      console.log('Responsável pelo projeto não encontrado.');
+    }
+
+    // Envio de e-mail, caso ambos tenham sido encontrados
+    if (interessado && responsavelProjeto) {
+      await enviarEmail(
+        interessado.email,
+        'Interesse Aceito - Gate2Way',
+        `Olá ${interessado.nome},\n\nSeu interesse no projeto "${projeto.nome}" foi aceito! Entre em contato com o responsável pelo projeto para mais detalhes:\n\nNome: ${responsavelProjeto.nome}\nEmail: ${responsavelProjeto.email}\nTelefone: ${responsavelProjeto.telefone}\n\nAtenciosamente,\nEquipe Gate2Way`
+      );
+      console.log('E-mail enviado para:', interessado.email);
+    } else {
+      console.log('Interessado ou responsável pelo projeto não encontrado, e-mail não enviado.');
     }
 
     await t.commit();
@@ -120,6 +125,8 @@ const AceitarInteresse = async (req, res) => {
     res.status(500).json({ error: `Erro ao formalizar o contrato: ${error.message}` });
   }
 };
+
+
 
 // Atualizar um contrato
 const AtualizarContrato = async (req, res) => {

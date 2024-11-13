@@ -21,6 +21,7 @@ const CriarInteresse = async (req, res) => {
             model: Programa,
             include: {
               model: Rota,
+              as: 'Rota',
               where: { empresa_id: usuarioLogado.empresa_id }
             }
           }
@@ -77,7 +78,6 @@ async function BuscarInteressesPorOferta(req, res) {
   }
 };
 
-// Selecionar um interesse
 // Selecionar um interesse
 const SelecionarInteresse = async (req, res) => {
   const usuarioLogado = req.user;

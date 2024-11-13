@@ -8,7 +8,7 @@ const { Op } = require('sequelize');
 // Criar uma nova Oferta
 const CadastrarOferta = async (req, res) => {
   const usuarioLogado = req.user;
-  const { data_inicio, data_fim, projeto_id } = req.body;
+  const { data_inicio, data_fim, projeto_id, impulso_id } = req.body;
 
   try {
     const projeto = await Projeto.findByPk(projeto_id, {
@@ -34,6 +34,7 @@ const CadastrarOferta = async (req, res) => {
       data_fim,
       status: 'ATIVO',
       projeto_id,
+      impulso_id,
     });
 
     projeto.status = 'ofertado';

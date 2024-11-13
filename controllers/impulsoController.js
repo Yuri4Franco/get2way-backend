@@ -4,13 +4,16 @@ const Impulso = require('../models').Impulso;
 const CadastrarImpulso = async (req, res) => {
   try {
     const { tipo, descricao, valor, data_inicio, data_fim } = req.body;
+    const empresa_id = req.user.empresa_id;
+    
 
     const novoImpulso = await Impulso.create({
       tipo,
       descricao,
       valor,
       data_inicio,
-      data_fim
+      data_fim,
+      empresa_id,
     });
 
     res.status(201).json(novoImpulso);
