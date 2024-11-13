@@ -1,8 +1,6 @@
 const { check, validationResult } = require('express-validator');
 
-// Middleware de validação para o cadastro de usuários
 const validarUsuarioCadastro = [
-  // Validar campos obrigatórios e formatos específicos
   check('nome')
     .notEmpty().withMessage('O nome é obrigatório.')
     .isLength({ min: 2 }).withMessage('O nome deve ter pelo menos 2 caracteres.'),
@@ -30,7 +28,6 @@ const validarUsuarioCadastro = [
   check('cargo')
     .notEmpty().withMessage('O cargo é obrigatório.'),
 
-  // Valida empresa_id e ict_id com base no tipo de usuário
   check('empresa_id')
     .optional()
     .if(check('tipo').equals('empresa'))
@@ -43,7 +40,6 @@ const validarUsuarioCadastro = [
     .notEmpty().withMessage('ict_id é obrigatório para usuários do tipo ICT.')
     .isInt().withMessage('ict_id deve ser um número inteiro.'),
 
-  // Processa os resultados da validação
   (req, res, next) => {
     const erros = validationResult(req);
     if (!erros.isEmpty()) {

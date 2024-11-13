@@ -14,8 +14,8 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   Contrato.init({
-    data_inicio: DataTypes.DATE,
-    data_fim: DataTypes.DATE,
+    data_inicio: DataTypes.STRING,
+    data_fim: DataTypes.STRING,
     status: DataTypes.STRING,
     interesse_id: DataTypes.INTEGER,
   }, {

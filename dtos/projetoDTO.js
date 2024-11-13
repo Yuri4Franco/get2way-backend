@@ -1,10 +1,5 @@
-// dtos/projetoDTO.js
-
-const { programaDTO } = require('./programaDTO'); // Importando o DTO de Programa
-
-// Função para transformar um modelo de Projeto em DTO
+const { programaDTO } = require('./programaDTO');
 const projetoDTO = (projeto) => {
-  // Retornamos apenas os campos que são necessários para a resposta
   return {
     id: projeto.id,
     nome: projeto.nome,
@@ -29,8 +24,7 @@ const projetoDTO = (projeto) => {
     upload: projeto.upload,
     status: projeto.status,
 
-    // Relacionamentos controlados (evitando referências cíclicas)
-    programa: projeto.Programa ? programaDTO(projeto.Programa) : null,  // Inclui o DTO de Programa se disponível
+    programa: projeto.Programa ? programaDTO(projeto.Programa) : null,
   };
 };
 
