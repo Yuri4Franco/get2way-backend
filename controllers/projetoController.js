@@ -235,10 +235,6 @@ const VerProjetos = async (req, res) => {
       include: includeOptions
     });
 
-    if (projetos.length === 0) {
-      return res.status(404).json({ message: 'Nenhum projeto encontrado com os filtros aplicados.' });
-    }
-
     res.status(200).json(projetos);
   } catch (error) {
     console.error('Erro ao buscar projetos:', error);
