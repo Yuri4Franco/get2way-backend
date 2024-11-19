@@ -5,6 +5,7 @@ const Programa = require('../models').Programa;
 const Rota = require('../models').Rota;
 const Keyword = require('../models').Keyword;
 const ProjetoKeyword = require('../models').ProjetoKeyword;
+const Empresa = require('../models').Empresa;
 const fs = require('fs');
 const path = require('path');
 
@@ -197,13 +198,14 @@ const VerProjetos = async (req, res) => {
         {
           model: Rota,
           as: 'Rota',
-          where: { empresa_id: usuarioLogado.empresa_id }
+          where: { empresa_id: usuarioLogado.empresa_id },
+          include:{ model: Empresa }
         }
       ]
     });
   } else {
     // Admin pode ver todos os projetos
-    includeOptions.push({ model: Programa, include: [{ model: Rota, as: 'Rota' }] });
+    includeOptions.push({ model: Programa, include: [{ model: Rota, as: 'Rota', include: { model: Empresa} }] });
   }
 
   // Filtro por rota_id
@@ -214,7 +216,8 @@ const VerProjetos = async (req, res) => {
         {
           model: Rota,
           as: 'Rota',
-          where: { id: rota_id }
+          where: { id: rota_id },
+          include:{ model: Empresa }
         }
       ]
     });
@@ -234,10 +237,6 @@ const VerProjetos = async (req, res) => {
       where: whereConditions,
       include: includeOptions
     });
-
-    if (projetos.length === 0) {
-      return res.status(404).json({ message: 'Nenhum projeto encontrado com os filtros aplicados.' });
-    }
 
     res.status(200).json(projetos);
   } catch (error) {

@@ -11,7 +11,7 @@ const CadastrarRota = async (req, res) => {
       return res.status(403).json({ error: 'Você só pode criar rotas para sua própria empresa.' });
     }
 
-    const rota = await Rota.create(req.body);
+    const rota = await Rota.create({ ...req.body, empresa_id });
     res.status(201).json(rota);
   } catch (error) {
     console.error('Erro ao criar rota:', error);
@@ -28,10 +28,10 @@ const BuscarTodasRotas = async (req, res) => {
 
     // Verifica se o usuário é um administrador
     if (tipo === 'admin') {
-      rotas = await Rota.findAll(); // Administrador vê todas as rotas
+      rotas = await Rota.findAll({ include: { model: Empresa }}); // Administrador vê todas as rotas
     } else if (tipo === 'empresa') {
       // Se for uma empresa, filtra as rotas pelo `empresa_id` associado
-      rotas = await Rota.findAll({ where: { empresa_id } });
+      rotas = await Rota.findAll({ where: { empresa_id }, include: { model: Empresa }});
     } else {
       return res.status(403).json({ error: 'Acesso negado.' });
     }
@@ -47,7 +47,7 @@ const SelecionarRota = async (req, res) => {
   const { tipo, empresa_id } = req.user;
 
   try {
-    const rota = await Rota.findByPk(req.params.id);
+    const rota = await Rota.findByPk(req.params.id, { include: { model: Empresa }});
 
     if (!rota) {
       return res.status(404).json({ error: 'Rota não encontrada' });

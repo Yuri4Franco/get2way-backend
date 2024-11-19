@@ -99,7 +99,8 @@ const SelecionarInteresse = async (req, res) => {
             include: {
               model: Rota,
               as: 'Rota',
-              where: usuarioLogado.tipo === 'admin' ? {} : { empresa_id: usuarioLogado.empresa_id }
+              where: usuarioLogado.tipo === 'admin' ? {} : { empresa_id: usuarioLogado.empresa_id },
+              include: { model: Empresa }
             }
           }
         }
@@ -144,7 +145,8 @@ const RejeitarInteresse = async (req, res) => {
             model: Programa,
             include: {
               model: Rota,
-              where: usuarioLogado.tipo === 'admin' ? {} : { empresa_id: usuarioLogado.empresa_id }
+              where: usuarioLogado.tipo === 'admin' ? {} : { empresa_id: usuarioLogado.empresa_id },
+              include: { model: Empresa }
             }
           }
         }
@@ -180,7 +182,8 @@ const ListarInteressesPorUsuario = async (req, res) => {
                   include: {
                     model: Rota,
                     as: 'Rota',
-                    where: usuarioLogado.tipo === 'admin' ? {} : { empresa_id: usuarioLogado.empresa_id }
+                    where: usuarioLogado.tipo === 'admin' ? {} : { empresa_id: usuarioLogado.empresa_id },
+                    include: { model: Empresa }
                   }
                 }
               }

@@ -86,7 +86,10 @@ const VerOfertas = async (req, res) => {
               include: {
                 model: Rota,
                 as: 'Rota',
-                where: usuarioLogado.tipo === 'empresa' ? { empresa_id: usuarioLogado.empresa_id } : undefined
+                where: usuarioLogado.tipo === 'empresa' ? { empresa_id: usuarioLogado.empresa_id } : undefined,
+                include: {
+                  model: Empresa,
+                }
               }
             },
             {
