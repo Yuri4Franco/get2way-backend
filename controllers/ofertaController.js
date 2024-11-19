@@ -3,6 +3,8 @@ const Projeto = require('../models').Projeto;
 const Programa = require('../models').Programa;
 const Rota = require('../models').Rota;
 const Keyword = require('../models').Keyword;
+const Empresa = require('../models').Empresa;
+const ICT = require('../models').ICT;
 const { Op } = require('sequelize');
 
 // Criar uma nova Oferta

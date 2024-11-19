@@ -12,7 +12,7 @@ const enviarEmail = require('../services/emailService');
 
 const AceitarInteresse = async (req, res) => {
   const usuarioLogado = req.user;
-  const { interesse_id } = req.body;
+  const { interesse_id, data_inicio, data_fim } = req.body;
 
   const t = await sequelize.transaction(); // Inicia uma transação
 
@@ -62,7 +62,8 @@ const AceitarInteresse = async (req, res) => {
     const novoContrato = await Contrato.create({
       interesse_id: interesse.id,
       status: 'ATIVO',
-      data_inicio: new Date(),
+      data_inicio,
+      data_fim
     }, { transaction: t });
 
     // Atualizar o status do projeto e da oferta

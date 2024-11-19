@@ -13,7 +13,7 @@ router.get('/interesses/oferta/:ofertaId', AutenticarToken, interesseController.
 router.get('/interesses/:interesse_id', AutenticarToken, interesseController.SelecionarInteresse);
 
 // Rota para listar todos os interesses de um usuário
-router.get('/interesses/usuario/:usuarioId', AutenticarToken, interesseController.ListarInteressesPorUsuario);
+router.get('/interesses', AutenticarToken, interesseController.ListarInteressesPorUsuario);
 
 module.exports = router;
     

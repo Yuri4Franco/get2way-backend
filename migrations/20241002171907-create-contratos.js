@@ -9,14 +9,6 @@ module.exports = {
         autoIncrement: true,
         primaryKey: true,
       },
-      data_inicio: {
-        type: Sequelize.STRING(45),
-        allowNull: false,
-      },
-      data_fim: {
-        type: Sequelize.STRING(45),
-        allowNull: true,
-      },
       status: {
         type: Sequelize.STRING(45),
         allowNull: false,

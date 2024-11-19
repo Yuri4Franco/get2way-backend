@@ -6,11 +6,7 @@ const CadastrarRota = async (req, res) => {
   const { tipo, empresa_id } = req.user;
 
   try {
-    // Se não for admin, empresa só pode criar para ela mesma
-    if (tipo !== 'admin' && req.body.empresa_id !== empresa_id) {
-      return res.status(403).json({ error: 'Você só pode criar rotas para sua própria empresa.' });
-    }
-
+    
     const rota = await Rota.create({ ...req.body, empresa_id });
     res.status(201).json(rota);
   } catch (error) {

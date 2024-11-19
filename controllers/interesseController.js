@@ -4,13 +4,20 @@ const Oferta = require('../models').Oferta;
 const Projeto = require('../models').Projeto;
 const Programa = require('../models').Programa;
 const Rota = require('../models').Rota;
+const Ict = require('../models').Ict;
+const Empresa = require('../models').Empresa;
+const enviarEmail = require('../services/emailService');
 
 // Criar um interesse de um usuário em uma oferta
+
 const CriarInteresse = async (req, res) => {
   const usuarioLogado = req.user;
 
   try {
     const { oferta_id, proposta } = req.body;
+
+    const ict = await Ict.findByPk(usuarioLogado.ict_id);
+    const usuario = await Usuario.findByPk(usuarioLogado.id);
 
     // Permitir que o admin ignore a verificação de empresa
     if (usuarioLogado.tipo !== 'admin') {
@@ -33,10 +40,67 @@ const CriarInteresse = async (req, res) => {
       }
     }
 
+    // Criar o interesse
     const interesse = await Interesse.create({ oferta_id, proposta, usuario_id: usuarioLogado.id });
 
-    res.status(201).json({ message: 'Interesse criado com sucesso', interesse });
+    // Obter informações adicionais para o e-mail
+    const oferta = await Oferta.findByPk(oferta_id, {
+      include: {
+        model: Projeto,
+        include: {
+          model: Usuario, // Responsável pelo projeto
+          as: 'Responsavel',
+          attributes: ['nome', 'email'] // Incluindo o ICT (ou o nome da organização)
+        }
+      }
+    });
+
+    if (!oferta) {
+      return res.status(404).json({ message: 'Oferta não encontrada.' });
+    }
+
+    const projeto = oferta.Projeto;
+    const responsavel = projeto.Responsavel;
+
+    if (!projeto || !responsavel) {
+      return res.status(404).json({ message: 'Projeto ou responsável pelo projeto não encontrado.' });
+    }
+
+
+    // Dados para o e-mail
+    const emailResponsavel = responsavel.email;
+    const nomeResponsavel = responsavel.nome;
+    const nomeProjeto = projeto.nome;
+
+    const conteudoEmail = `
+      Olá ${nomeResponsavel}, um novo interesse foi registrado no seu projeto "${nomeProjeto}".
+      
+      **Proposta:**
+      ${proposta}
+      
+      **Informações do Usuário que demonstrou interesse:**
+      Nome: ${usuario.nome}
+      Email: ${usuario.email}
+      Telefone: ${usuario.telefone}
+      ICT: ${ict.nome}
+
+      Entre em contato para mais detalhes.
+      
+      Atenciosamente,
+      Equipe Gate2Way
+    `;
+
+    // Enviar e-mail para o responsável pelo projeto
+    await enviarEmail(
+      emailResponsavel,
+      `Novo Interesse no Projeto: ${nomeProjeto}`,
+      conteudoEmail
+    );
+
+    // Responder com sucesso
+    res.status(201).json({ message: 'Interesse criado com sucesso e e-mail enviado.', interesse });
   } catch (error) {
+    console.error('Erro ao criar interesse:', error);
     res.status(500).json({ error: `Erro ao criar interesse: ${error.message}` });
   }
 };
@@ -46,7 +110,7 @@ async function BuscarInteressesPorOferta(req, res) {
   try {
     const ofertaId = req.params.ofertaId;
     console.log("Iniciando busca de interesses para a oferta:", ofertaId); // Log para verificar ofertaId
-    
+
     // Verifique se `ofertaId` está presente
     if (!ofertaId) {
       console.log("Erro: ID da oferta não foi fornecido na URL.");
@@ -107,20 +171,6 @@ const SelecionarInteresse = async (req, res) => {
       }
     });
 
-    // Log do interesse e de suas associações para verificação
-    if (interesse) {
-      console.log("Interesse encontrado:", interesse.toJSON());
-      console.log("Oferta associada:", interesse.Oferta ? interesse.Oferta.toJSON() : "Nenhuma oferta associada");
-    } else {
-      console.log("Interesse não encontrado ou sem permissão de acesso.");
-      return res.status(404).json({ message: 'Interesse não encontrado ou não pertence a um projeto da sua empresa.' });
-    }
-
-    // Atualizar o status do interesse para "selecionado"
-    console.log("Atualizando status do interesse para 'selecionado'.");
-    interesse.status = 'selecionado';
-    await interesse.save();
-
     console.log("Status atualizado com sucesso. Interesse selecionado.");
     res.status(200).json({ message: 'Interesse selecionado com sucesso.', interesse });
   } catch (error) {
@@ -171,24 +221,24 @@ const ListarInteressesPorUsuario = async (req, res) => {
   try {
     const interesses = await Interesse.findAll({
       where: { usuario_id: usuarioLogado.id },
-          include: [
-            {
-              model: Oferta,
-              as: 'Oferta',
+      include: [
+        {
+          model: Oferta,
+          as: 'Oferta',
+          include: {
+            model: Projeto,
+            include: {
+              model: Programa,
               include: {
-                model: Projeto,
-                include: {
-                  model: Programa,
-                  include: {
-                    model: Rota,
-                    as: 'Rota',
-                    where: usuarioLogado.tipo === 'admin' ? {} : { empresa_id: usuarioLogado.empresa_id },
-                    include: { model: Empresa }
-                  }
-                }
+                model: Rota,
+                as: 'Rota',
+                where: usuarioLogado.tipo === 'admin' ? {} : { empresa_id: usuarioLogado.empresa_id },
+                include: { model: Empresa }
               }
             }
-          ],
+          }
+        }
+      ],
     });
 
     res.status(200).json(interesses);
