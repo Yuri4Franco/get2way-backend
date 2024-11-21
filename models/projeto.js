@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
       Projeto.belongsTo(models.Programa, { foreignKey: 'programa_id' });
       Projeto.belongsTo(models.Usuario, { foreignKey: 'usuario_id', as: 'Responsavel' });
       Projeto.hasMany(models.Oferta, { foreignKey: 'projeto_id' });
-      Projeto.hasMany(models.Contrato, { foreignKey: 'projeto_id' });
+      Projeto.belongsTo(models.Impulso, { foreignKey: 'impulso_id', as: 'Impulso' });
       Projeto.belongsToMany(models.Keyword, {
         through: 'projeto_keywords', // Tabela intermediária
         foreignKey: 'projeto_id',
@@ -46,7 +46,8 @@ module.exports = (sequelize, DataTypes) => {
     custos: DataTypes.STRING,
     upload: DataTypes.STRING,
     programa_id: DataTypes.INTEGER,
-    usuario_id: DataTypes.INTEGER
+    usuario_id: DataTypes.INTEGER,
+    impulso_id: DataTypes.INTEGER
   }, {
     sequelize,
     modelName: 'Projeto',

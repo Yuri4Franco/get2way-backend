@@ -4,32 +4,84 @@ const { Usuario, Responsavel } = require('../models');
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     const senha = bcrypt.hashSync('senha123', 10);
+    const dateNow = new Date();
 
-    // Cria o usuário admin
-    const adminUsuario = await Usuario.create({
-      nome: 'Administrador',
-      email: 'admin@example.com',
-      senha,
-      tipo: 'admin',
-      endereco: 'Endereço Admin', // Se o campo for obrigatório
-      telefone: '123456789', // Se o campo for obrigatório
-      primeiro_acesso: 1,
-      createdAt: new Date(),
-      updatedAt: new Date()
+    // Inserir usuários
+    await queryInterface.bulkInsert('Usuarios', [
+      {
+        nome: 'Administrador',
+        email: 'admin@example.com',
+        senha,
+        tipo: 'admin',
+        endereco: 'Endereço Admin',
+        telefone: '123456789',
+        primeiro_acesso: 1,
+        createdAt: dateNow,
+        updatedAt: dateNow,
+      },
+      {
+        nome: 'ICT',
+        email: 'ICT@example.com',
+        senha,
+        tipo: 'ict',
+        endereco: 'Endereço ict',
+        telefone: '987654321',
+        primeiro_acesso: 1,
+        createdAt: dateNow,
+        updatedAt: dateNow,
+      },
+      {
+        nome: 'Empresa',
+        email: 'Empresa@example.com',
+        senha,
+        tipo: 'empresa',
+        endereco: 'Endereço Empresa',
+        telefone: '01020304',
+        primeiro_acesso: 1,
+        createdAt: dateNow,
+        updatedAt: dateNow,
+      },
+    ]);
+
+    // Consultar IDs criados para associação
+    const usuarios = await queryInterface.sequelize.query(
+      `SELECT id, email FROM Usuarios WHERE email IN ('admin@example.com', 'ICT@example.com', 'Empresa@example.com');`,
+      { type: Sequelize.QueryTypes.SELECT }
+    );
+
+    // Associar Responsaveis
+    const responsaveis = usuarios.map((usuario) => {
+      let cargo = '';
+      if (usuario.email === 'admin@example.com') cargo = 'Administrador';
+      if (usuario.email === 'ICT@example.com') cargo = 'Professor';
+      if (usuario.email === 'Empresa@example.com') cargo = 'Gerente';
+
+      return {
+        usuario_id: usuario.id,
+        cargo,
+        empresa_id: null,
+        ict_id: null,
+        createdAt: dateNow,
+        updatedAt: dateNow,
+      };
     });
 
-    // Cria o registro de responsável associado ao usuário admin
-    await Responsavel.create({
-      usuario_id: adminUsuario.id, // Associa ao ID do usuário admin criado
-      cargo: 'Administrador',
-      empresa_id: null, // Deixe null se o admin não estiver associado a uma empresa específica
-      ict_id: null // Deixe null se o admin não estiver associado a uma ICT específica
-    });
+    await queryInterface.bulkInsert('Responsaveis', responsaveis);
   },
 
   down: async (queryInterface, Sequelize) => {
-    // Remove o responsável e o usuário admin
-    await queryInterface.bulkDelete('Responsaveis', { usuario_id: Sequelize.literal(`(SELECT id FROM Usuarios WHERE email = 'admin@example.com')`) }, {});
-    await queryInterface.bulkDelete('Usuarios', { email: 'admin@example.com' }, {});
-  }
+    // Deletar responsáveis associados
+    await queryInterface.bulkDelete(
+      'Responsaveis',
+      { usuario_id: Sequelize.literal(`(SELECT id FROM Usuarios WHERE email IN ('admin@example.com', 'ICT@example.com', 'Empresa@example.com'))`) },
+      {}
+    );
+
+    // Deletar usuários
+    await queryInterface.bulkDelete(
+      'Usuarios',
+      { email: { [Sequelize.Op.in]: ['admin@example.com', 'ICT@example.com', 'Empresa@example.com'] } },
+      {}
+    );
+  },
 };

@@ -4,13 +4,13 @@ const Programa = require('../models').Programa;
 const Rota = require('../models').Rota;
 const Keyword = require('../models').Keyword;
 const Empresa = require('../models').Empresa;
-const ICT = require('../models').ICT;
+const Impulso = require('../models').Impulso;
 const { Op } = require('sequelize');
 
 // Criar uma nova Oferta
 const CadastrarOferta = async (req, res) => {
   const usuarioLogado = req.user;
-  const { data_inicio, data_fim, projeto_id, impulso_id } = req.body;
+  const { projeto_id } = req.body;
 
   try {
     const projeto = await Projeto.findByPk(projeto_id, {
@@ -32,14 +32,11 @@ const CadastrarOferta = async (req, res) => {
     }
 
     const novaOferta = await Oferta.create({
-      data_inicio,
-      data_fim,
       status: 'ATIVO',
       projeto_id,
-      impulso_id,
     });
 
-    projeto.status = 'ofertado';
+    projeto.status = 'PUBLICADO';
     await projeto.save();
 
     res.status(201).json(novaOferta);
@@ -52,12 +49,14 @@ const CadastrarOferta = async (req, res) => {
 // Buscar todas as ofertas (filtros para empresas e ICTs)
 const VerOfertas = async (req, res) => {
   const usuarioLogado = req.user;
-  const { nome, keyword, trl, prioridade, status, data_inicio, data_fim, empresa_id } = req.query;
+  const { nome, keyword, trl, prioridade, status, data_inicio, data_fim, empresa_id, com_impulso } = req.query;
 
   try {
     let whereConditions = {};
     let projetoConditions = {};
+    const includeOptions = [];
 
+    // Configurações de filtro baseadas no tipo do usuário
     if (usuarioLogado.tipo === 'empresa') {
       whereConditions = {
         '$Projeto.Programa.Rota.empresa_id$': usuarioLogado.empresa_id
@@ -69,12 +68,28 @@ const VerOfertas = async (req, res) => {
       }
     }
 
+    // Adiciona filtros baseados nos parâmetros fornecidos
     if (nome) projetoConditions.nome = { [Op.like]: `%${nome}%` };
     if (trl) projetoConditions.trl = trl;
     if (prioridade) projetoConditions.prioridade = prioridade;
     if (status) whereConditions.status = status;
     if (data_inicio) whereConditions.data_inicio = { [Op.gte]: data_inicio };
     if (data_fim) whereConditions.data_fim = { [Op.lte]: data_fim };
+
+    // Configura o filtro de impulso opcional
+    if (com_impulso === 'true') {
+      includeOptions.push({
+        model: Impulso, 
+        as: 'Impulso',
+        required: true // Garante que o projeto tenha impulso
+      });
+    } else {
+      includeOptions.push({
+        model: Impulso,
+        as: 'Impulso',
+        required: false // Inclui projetos com ou sem impulso
+      });
+    }
 
     const ofertas = await Oferta.findAll({
       where: whereConditions,
@@ -99,7 +114,8 @@ const VerOfertas = async (req, res) => {
               as: 'keywords',
               where: keyword ? { nome: { [Op.like]: `%${keyword}%` } } : undefined,
               required: false
-            }
+            },
+            ...includeOptions // Adiciona o filtro de impulso baseado na seleção
           ]
         }
       ]
@@ -112,6 +128,8 @@ const VerOfertas = async (req, res) => {
   }
 };
 
+
+
 // Selecionar uma Oferta por ID
 const SelecionarOferta = async (req, res) => {
   const usuarioLogado = req.user;
@@ -121,13 +139,19 @@ const SelecionarOferta = async (req, res) => {
     const oferta = await Oferta.findByPk(id, {
       include: {
         model: Projeto,
-        include: {
-          model: Programa,
-          include: {
-            model: Rota,
-            as: 'Rota',
+        include: [
+          {
+            model: Programa,
+            include: {
+              model: Rota,
+              as: 'Rota',
+            }
+          },
+          {
+            model: Impulso, // Inclui o impulso
+            as: 'Impulso',
           }
-        }
+        ]
       }
     });
 
@@ -153,7 +177,7 @@ const SelecionarOferta = async (req, res) => {
 // Atualizar uma Oferta
 const AtualizarOferta = async (req, res) => {
   const usuarioLogado = req.user;
-  const { data_inicio, data_fim, status, projeto_id } = req.body;
+  const { status, projeto_id } = req.body;
 
   try {
     const oferta = await Oferta.findByPk(req.params.id, {
@@ -177,8 +201,6 @@ const AtualizarOferta = async (req, res) => {
       return res.status(403).json({ message: 'Acesso negado. Esta oferta não pertence à sua empresa.' });
     }
 
-    oferta.data_inicio = data_inicio;
-    oferta.data_fim = data_fim;
     oferta.status = status;
     oferta.projeto_id = projeto_id;
     await oferta.save();
@@ -216,6 +238,11 @@ const DeletarOferta = async (req, res) => {
     }
 
     await oferta.destroy();
+
+    const projeto = oferta.Projeto;
+    projeto.status = 'NÃO PUBLICADO';
+    await projeto.save();
+
     res.status(200).json({ message: 'Oferta deletada com sucesso' });
   } catch (error) {
     res.status(500).json({ error: 'Erro ao deletar Oferta' });

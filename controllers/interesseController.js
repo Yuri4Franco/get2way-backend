@@ -214,14 +214,23 @@ const RejeitarInteresse = async (req, res) => {
   }
 };
 
-// Listar todos os interesses de um usuário
-const ListarInteressesPorUsuario = async (req, res) => {
+
+// Listar todos os interesses
+const ListarInteresses = async (req, res) => {
   const usuarioLogado = req.user;
 
   try {
-    const interesses = await Interesse.findAll({
-      where: { usuario_id: usuarioLogado.id },
-      include: [
+    let whereConditions = {}; // Condições de busca para os interesses
+    let includeOptions = []; // Opções de inclusão nas associações
+
+    // Caso o usuário seja um ICT
+    if (usuarioLogado.tipo === 'ict') {
+      whereConditions = { usuario_id: usuarioLogado.id }; // Apenas os interesses criados por este usuário
+    }
+
+    // Caso o usuário seja uma empresa (para gerenciar interesses em seus projetos)
+    if (usuarioLogado.tipo === 'empresa') {
+      includeOptions = [
         {
           model: Oferta,
           as: 'Oferta',
@@ -232,25 +241,53 @@ const ListarInteressesPorUsuario = async (req, res) => {
               include: {
                 model: Rota,
                 as: 'Rota',
-                where: usuarioLogado.tipo === 'admin' ? {} : { empresa_id: usuarioLogado.empresa_id },
-                include: { model: Empresa }
+                where: { empresa_id: usuarioLogado.empresa_id }, // Restringe às rotas da empresa
               }
             }
           }
         }
-      ],
+      ];
+    }
+
+    // Caso o usuário seja admin (sem restrições)
+    if (usuarioLogado.tipo === 'admin') {
+      includeOptions = [
+        {
+          model: Oferta,
+          as: 'Oferta',
+          include: {
+            model: Projeto,
+            include: {
+              model: Programa,
+              include: {
+                model: Rota,
+                as: 'Rota',
+              }
+            }
+          }
+        }
+      ];
+    }
+
+    // Busca os interesses com as condições e associações apropriadas
+    const interesses = await Interesse.findAll({
+      where: whereConditions,
+      include: includeOptions,
     });
 
+    // Responde com a lista de interesses
     res.status(200).json(interesses);
   } catch (error) {
-    res.status(500).json({ error: `Erro ao buscar interesses do usuário: ${error.message}` });
+    console.error('Erro ao listar interesses:', error);
+    res.status(500).json({ error: 'Erro ao listar interesses' });
   }
 };
+
 
 module.exports = {
   CriarInteresse,
   BuscarInteressesPorOferta,
   SelecionarInteresse,
-  ListarInteressesPorUsuario,
+  ListarInteresses,
   RejeitarInteresse
 };

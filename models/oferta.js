@@ -9,12 +9,11 @@ module.exports = (sequelize, DataTypes) => {
       Oferta.belongsTo(models.Projeto, {
         foreignKey: 'projeto_id',
       });
-      Oferta.belongsTo(models.Impulso, { foreignKey: 'impulso_id' });
     }
   }
   Oferta.init({
     projeto_id: DataTypes.INTEGER,
-    status: DataTypes.STRING
+    status: DataTypes.STRING,
   }, {
     sequelize,
     modelName: 'Oferta',

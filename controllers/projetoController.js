@@ -6,6 +6,7 @@ const Rota = require('../models').Rota;
 const Keyword = require('../models').Keyword;
 const ProjetoKeyword = require('../models').ProjetoKeyword;
 const Empresa = require('../models').Empresa;
+const Impulso = require('../models').Impulso;
 const fs = require('fs');
 const path = require('path');
 
@@ -20,6 +21,10 @@ const SelecionarProjeto = async (req, res) => {
         {
           model: Programa,
           include: { model: Rota, as: 'Rota' }
+        },
+        {
+          model: Impulso,
+          as: 'Impulso',
         }
       ]
     });
@@ -42,8 +47,8 @@ const SelecionarProjeto = async (req, res) => {
 // Cadastrar um projeto
 const CadastrarProjeto = async (req, res) => {
   const usuarioLogado = req.user;
-  let { programa_id, keywords } = req.body;
-  usuario_id = req.user.empresa_id;
+  let { programa_id, keywords} = req.body;
+  usuario_id = req.user.id;
 
   try {
     const programa = await Programa.findByPk(programa_id, {
@@ -59,9 +64,10 @@ const CadastrarProjeto = async (req, res) => {
     }
 
     // Cria o projeto e salva o caminho do arquivo, se disponível
+    const status = 'NÃO PÚBLICADO'
     const arquivoPath = req.file ? `/uploads/arquivos/${req.file.filename}` : null;
-    const novoProjeto = await Projeto.create({ ...req.body, usuario_id, upload: arquivoPath });
-
+    const novoProjeto = await Projeto.create({ ...req.body, status, usuario_id, upload: arquivoPath });
+    
     if (typeof keywords === 'string') {
       keywords = keywords.split(',').map(kw => kw.trim());
     }
@@ -115,6 +121,11 @@ const AtualizarProjeto = async (req, res) => {
       return res.status(403).json({ message: 'Acesso negado.' });
     }
 
+    // Verifica se o status do projeto permite atualização
+    if (projeto.status !== 'NÃO PÚBLICADO') {
+      return res.status(400).json({ message: 'Não é permitido atualizar projetos que não estão com status "NÃO PÚBLICADO".' });
+    }
+
     // Se houver um novo arquivo, exclui o antigo
     const novoArquivoPath = req.file ? `/uploads/arquivos/${req.file.filename}` : null;
     if (novoArquivoPath && projeto.upload) {
@@ -124,7 +135,24 @@ const AtualizarProjeto = async (req, res) => {
       });
     }
 
-    await projeto.update({ ...req.body, upload: novoArquivoPath || projeto.upload });
+    // Filtra os campos que realmente mudaram
+    const camposParaAtualizar = {};
+    Object.keys(req.body).forEach((campo) => {
+      if (projeto[campo] !== req.body[campo]) {
+        camposParaAtualizar[campo] = req.body[campo];
+      }
+    });
+
+    // Inclui o campo upload se houver um novo arquivo
+    if (novoArquivoPath) {
+      camposParaAtualizar.upload = novoArquivoPath;
+    }
+
+    if (Object.keys(camposParaAtualizar).length === 0) {
+      return res.status(200).json({ message: 'Nenhuma alteração detectada.' });
+    }
+
+    await projeto.update(camposParaAtualizar);
     res.status(200).json(projeto);
   } catch (error) {
     console.error('Erro ao atualizar o projeto:', error);
@@ -139,6 +167,7 @@ const AtualizarProjeto = async (req, res) => {
     res.status(500).json({ error: 'Erro ao atualizar o projeto.' });
   }
 };
+
 
 
 // Deletar um projeto (aplica segurança)
@@ -181,16 +210,10 @@ const VerProjetos = async (req, res) => {
   const whereConditions = {};
   const includeOptions = [];
 
-  // Filtro por programa_id
   if (programa_id) whereConditions.programa_id = programa_id;
-
-  // Filtro por status
   if (status) whereConditions.status = status;
-
-  // Filtro por prioridade
   if (prioridade) whereConditions.prioridade = prioridade;
 
-  // Filtro para admin e empresa
   if (usuarioLogado.tipo !== 'admin') {
     includeOptions.push({
       model: Programa,
@@ -199,16 +222,14 @@ const VerProjetos = async (req, res) => {
           model: Rota,
           as: 'Rota',
           where: { empresa_id: usuarioLogado.empresa_id },
-          include:{ model: Empresa }
+          include: { model: Empresa }
         }
       ]
     });
   } else {
-    // Admin pode ver todos os projetos
-    includeOptions.push({ model: Programa, include: [{ model: Rota, as: 'Rota', include: { model: Empresa} }] });
+    includeOptions.push({ model: Programa, include: [{ model: Rota, as: 'Rota', include: { model: Empresa } }] });
   }
 
-  // Filtro por rota_id
   if (rota_id) {
     includeOptions.push({
       model: Programa,
@@ -217,13 +238,12 @@ const VerProjetos = async (req, res) => {
           model: Rota,
           as: 'Rota',
           where: { id: rota_id },
-          include:{ model: Empresa }
+          include: { model: Empresa }
         }
       ]
     });
   }
 
-  // Filtro por keyword
   if (keyword) {
     includeOptions.push({
       model: Keyword,
@@ -231,6 +251,12 @@ const VerProjetos = async (req, res) => {
       where: { nome: keyword }
     });
   }
+
+  // Adiciona o impulso à lista de inclusões
+  includeOptions.push({
+    model: Impulso,
+    as: 'Impulso',
+  });
 
   try {
     const projetos = await Projeto.findAll({
@@ -244,6 +270,7 @@ const VerProjetos = async (req, res) => {
     res.status(500).json({ error: 'Erro ao buscar projetos.' });
   }
 };
+  
 
 
 module.exports = {

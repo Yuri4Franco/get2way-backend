@@ -89,6 +89,12 @@ const ResponsavelCadastrarUsuario = async (req, res) => {
       ict_id
     });
 
+    await enviarEmail(
+      email,
+      'Bem-vindo à plataforma Gate2Way',
+      `Olá ${nome},\n\nVocê foi cadastrado na plataforma Gate2Way.\n\nDados de acesso:\nEmail: ${email}\nSenha: ${senha}\n\nPor segurança, recomendamos que altere sua senha após o primeiro acesso.\n\nAtenciosamente,\nEquipe Gate2Way`
+    );
+
     res.status(201).json({ 
       message: 'Usuário e responsável cadastrados com sucesso!',
       usuario: novoUsuario 
@@ -223,7 +229,7 @@ const VerUsuario = async (req, res) => {
 // ADMIN Ver todos os usuários
 const VerTodosUsuarios = async (req, res) => {
   try {
-    const usuarios = await Usuario.findAll();
+    const usuarios = await Usuario.findAll({ include:{ model: Responsavel }});
     res.status(200).json(usuarios);
   } catch (error) {
     res.status(500).json({ error: 'Erro ao buscar os usuários.' });

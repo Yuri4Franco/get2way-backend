@@ -6,6 +6,7 @@ const Projeto = require('../models').Projeto;
 const Programa = require('../models').Programa;
 const Usuario = require('../models').Usuario;
 const Rota = require('../models').Rota;
+const Empresa = require('../models').Empresa;
 const { Op } = require('sequelize');
 const sequelize = require('../config/sequelize.js');
 const enviarEmail = require('../services/emailService');
@@ -62,8 +63,6 @@ const AceitarInteresse = async (req, res) => {
     const novoContrato = await Contrato.create({
       interesse_id: interesse.id,
       status: 'ATIVO',
-      data_inicio,
-      data_fim
     }, { transaction: t });
 
     // Atualizar o status do projeto e da oferta
@@ -239,11 +238,12 @@ const ListarContratos = async (req, res) => {
           model: Interesse,
           include: {
             model: Oferta,
+            as: 'Oferta',
             include: {
               model: Projeto,
               include: {
                 model: Programa,
-                include: { model: Rota, where: { empresa_id: usuarioLogado.empresa_id } }
+                include: { model: Rota, as: 'Rota', where: { empresa_id: usuarioLogado.empresa_id }, include: { model: Empresa } }
               }
             }
           }
@@ -253,13 +253,15 @@ const ListarContratos = async (req, res) => {
       contratos = await Contrato.findAll({
         include: {
           model: Interesse,
+          where: { usuario_id: usuarioLogado.id },
           include: {
             model: Oferta,
+            as: 'Oferta',
             include: {
               model: Projeto,
               include: {
                 model: Programa,
-                include: { model: Rota, include: { model: ICT, where: { id: usuarioLogado.ict_id } } }
+                include: { model: Rota, as: 'Rota', include: { model: Empresa } }
               }
             }
           }
