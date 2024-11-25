@@ -20,7 +20,7 @@ const authRoute = require('./routes/authRoute');
 app.use(express.json()); 
 
 // Rotas
-app.use('/api', projetoRoutes);  // Rotas começam com /api
+app.use('/api', projetoRoutes); 
 
 app.use('/api', usuarioRoutes);
 

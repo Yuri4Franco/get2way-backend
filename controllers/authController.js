@@ -62,7 +62,30 @@ const Logout = async (req, res) => {
   res.status(200).json({ message: 'Logout bem-sucedido. Por favor, remova o token do armazenamento local.' });
 };
 
+// Verificar Token
+const VerificarToken = async (req, res) => {
+  const token = req.header('Authorization')?.replace('Bearer ', '');
+
+  if (!token) {
+    return res.status(401).json({ message: 'Acesso negado, token não fornecido.' });
+  }
+
+  try {
+    // Decodifica o token e verifica se é válido
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    // Retorna as informações do usuário e o status do token
+    res.status(200).json({
+      message: 'Token válido.',
+      usuario: decoded,
+    });
+  } catch (err) {
+    res.status(401).json({ message: 'Token inválido ou expirado.' });
+  }
+};
+
 module.exports = {
   Login,
-  Logout
+  Logout,
+  VerificarToken
 };
