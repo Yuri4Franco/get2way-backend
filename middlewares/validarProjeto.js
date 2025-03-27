@@ -54,7 +54,7 @@ const validateProjeto = [
     .optional()
     .isLength({ min: 10, max: 255 }).withMessage('Requisitos devem ter entre 10 e 255 caracteres'),
 
-  check('steakholders')
+  check('stakeholders')
     .optional()
     .isLength({ max: 255 }).withMessage('Stakeholders podem ter no máximo 255 caracteres'),
 

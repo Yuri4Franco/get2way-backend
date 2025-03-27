@@ -206,6 +206,33 @@ const DeletarPrograma = async (req, res) => {
   }
 };
 
+const BuscarProgramaPorEmpresaId = async (req, res) => {
+  const { tipo } = req.user;
+
+  try {
+    // Verifica se o usuário é admin
+    if (tipo !== 'admin') {
+      return res.status(403).json({ error: 'Acesso negado. Apenas administradores podem acessar esta rota.' });
+    }
+
+    const programas = await Programa.findAll({
+      include: {
+        model: Rota,
+        as: 'Rota', // O alias 'Rota' deve ser usado aqui
+        where: { empresa_id: req.params.empresa_id }
+      },
+
+    });
+    if (programas.length > 0) {
+      res.status(200).json(programas);
+    } else {
+      res.status(404).json({ error: 'Nenhum programa foi encontrado para esta empresa' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: `Erro ao buscar rotas por empresa: ${error.message}` });
+  }
+};
+
 
 
 
@@ -215,4 +242,5 @@ module.exports = {
   SelecionarPrograma,
   AtualizarPrograma,
   DeletarPrograma,
+  BuscarProgramaPorEmpresaId
 };

@@ -36,7 +36,7 @@ module.exports = (sequelize, DataTypes) => {
     beneficios: DataTypes.STRING,
     produto: DataTypes.STRING,
     requisitos: DataTypes.STRING,
-    steakholders: DataTypes.STRING,
+    stakeholders: DataTypes.STRING,
     equipe: DataTypes.STRING,
     premissas: DataTypes.STRING,
     grupo_de_entrega: DataTypes.STRING,

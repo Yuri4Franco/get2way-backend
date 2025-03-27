@@ -12,6 +12,10 @@ module.exports = {
         type: Sequelize.STRING(100),
         allowNull: false,
       },
+      tipo: {
+        type: Sequelize.STRING(45),
+        allowNull: false,
+      },
       valor: {
         type: Sequelize.STRING(45),
         allowNull: true,

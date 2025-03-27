@@ -13,7 +13,7 @@ const projetoDTO = (projeto) => {
     beneficios: projeto.beneficios,
     produto: projeto.produto,
     requisitos: projeto.requisitos,
-    steakholders: projeto.steakholders,
+    stakeholders: projeto.stakeholders,
     equipe: projeto.equipe,
     premissas: projeto.premissas,
     grupo_de_entrega: projeto.grupo_de_entrega,

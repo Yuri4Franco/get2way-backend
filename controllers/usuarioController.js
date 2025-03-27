@@ -95,9 +95,9 @@ const ResponsavelCadastrarUsuario = async (req, res) => {
       `Olá ${nome},\n\nVocê foi cadastrado na plataforma Gate2Way.\n\nDados de acesso:\nEmail: ${email}\nSenha: ${senha}\n\nPor segurança, recomendamos que altere sua senha após o primeiro acesso.\n\nAtenciosamente,\nEquipe Gate2Way`
     );
 
-    res.status(201).json({ 
+    res.status(201).json({
       message: 'Usuário e responsável cadastrados com sucesso!',
-      usuario: novoUsuario 
+      usuario: novoUsuario
     });
   } catch (error) {
     console.error('Erro ao cadastrar o usuário e responsável:', error); // Log do erro
@@ -165,33 +165,66 @@ const CadastrarUsuario = async (req, res) => {
   }
 };
 
-// ADMIN Atualizar um usuário existente
+// ADMIN E USUARIO Atualizar um usuário existente
 const AtualizarUsuario = async (req, res) => {
   const { id } = req.params;
-  const { nome, email, senha, tipo, endereco, telefone } = req.body;
+  const usuarioLogado = req.user;
+  const { cargo } = req.body;
+  console.log('Usuário logado:', usuarioLogado);
+  console.log('Atualizando usuário ID:', id);
+  console.log('Cargo Recebido', cargo);
 
   try {
-    const usuario = await Usuario.findByPk(id);
+    const usuario = await Usuario.findByPk(id, {
+      include: { model: Responsavel, as: 'Responsavels' }
+    });
 
-    const senhaHash = await bcrypt.hash(senha, 10);
     if (!usuario) {
       return res.status(404).json({ message: 'Usuário não encontrado.' });
     }
 
-    await usuario.update({
-      nome,
-      email,
-      senha: senhaHash,
-      tipo,
-      endereco,
-      telefone,
-    });
+    const responsavel = await Responsavel.findOne({ where: { usuario_id: id } });
 
-    res.status(200).json(usuario);
+    console.log('Usuário encontrado:', usuario);
+
+    const isAdmin = usuarioLogado.tipo === 'admin';
+
+    // Verificação de permissão
+    if (!isAdmin && usuario.id !== usuarioLogado.id) {
+      return res.status(403).json({ message: 'Acesso negado. Você só pode atualizar sua própria conta.' });
+    }
+
+    // Prepara campos permitidos
+    const camposPermitidos = ['nome', 'email', 'senha', 'telefone', 'endereco'];
+    const camposParaAtualizar = {};
+
+    for (const campo of camposPermitidos) {
+      if (req.body[campo] !== undefined && usuario[campo] !== req.body[campo]) {
+        if (campo === 'senha') {
+          camposParaAtualizar.senha = await bcrypt.hash(req.body.senha, 10);
+        } else {
+          camposParaAtualizar[campo] = req.body[campo];
+        }
+      }
+    }
+
+    if (Object.keys(camposParaAtualizar).length > 0) {
+      await usuario.update(camposParaAtualizar);
+    }
+
+    if (responsavel && cargo !== undefined) {
+      console.log('Cargo do responsável:', responsavel.cargo);
+      if (responsavel.cargo !== cargo) {
+        await responsavel.update({ cargo });
+      }
+    }
+    res.status(200).json({ message: 'Usuário atualizado com sucesso.', usuario, responsavel });
   } catch (error) {
+    console.error('Erro ao atualizar usuário:', error);
     res.status(500).json({ error: 'Erro ao atualizar o usuário.' });
   }
 };
+
 
 // ADMIN Deletar um usuário
 const DeletarUsuario = async (req, res) => {
@@ -215,7 +248,12 @@ const VerUsuario = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const usuario = await Usuario.findByPk(id);
+    const usuario = await Usuario.findByPk(id, { include: { model: Responsavel, as: 'Responsavels' } });
+
+    if (req.user.tipo !== "admin" && usuario.id !== req.user.id) {
+      return res.status(403).json({ message: 'Acesso negado.' });
+    }
+
     if (!usuario) {
       return res.status(404).json({ message: 'Usuário não encontrado.' });
     }
@@ -229,7 +267,12 @@ const VerUsuario = async (req, res) => {
 // ADMIN Ver todos os usuários
 const VerTodosUsuarios = async (req, res) => {
   try {
-    const usuarios = await Usuario.findAll({ include:{ model: Responsavel }});
+    const usuarios = await Usuario.findAll({ include: { model: Responsavel, as: 'Responsavels' } });
+
+    if (req.user.tipo !== 'admin') {
+      return res.status(403).json({ error: 'Acesso negado.' });
+    }
+
     res.status(200).json(usuarios);
   } catch (error) {
     res.status(500).json({ error: 'Erro ao buscar os usuários.' });
@@ -238,6 +281,10 @@ const VerTodosUsuarios = async (req, res) => {
 
 const BuscarUsuarioDinamico = async (req, res) => {
   const { q } = req.query; // O termo de busca passado na URL
+
+  if (req.user.tipo !== 'admin') {
+    return res.status(403).json({ error: 'Acesso negado.' });
+  }
 
   if (!q) {
     return res.status(400).json({ error: 'Por favor, forneça um termo de busca.' });

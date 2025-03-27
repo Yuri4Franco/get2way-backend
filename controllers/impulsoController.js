@@ -5,7 +5,7 @@ const CadastrarImpulso = async (req, res) => {
   try {
     const { tipo, descricao, valor, data_inicio, data_fim } = req.body;
     const empresa_id = req.user.empresa_id;
-    
+
 
     const novoImpulso = await Impulso.create({
       tipo,
@@ -25,15 +25,17 @@ const CadastrarImpulso = async (req, res) => {
 
 // Buscar todos os Impulsos
 const BuscarTodosImpulsos = async (req, res) => {
+  const { empresa_id } = req.user;
   try {
-    const impulsos = await Impulso.findAll();
+    const impulsos = await Impulso.findAll({ where: { empresa_id }});
     res.status(200).json(impulsos);
+
   } catch (error) {
     res.status(500).json({ error: 'Erro ao buscar Impulsos' });
   }
 };
 
-// Buscar um Impulso por ID
+// Selecionar um Impulso
 const BuscarImpulsoPorId = async (req, res) => {
   try {
     const impulso = await Impulso.findByPk(req.params.id);
@@ -52,13 +54,16 @@ const AtualizarImpulso = async (req, res) => {
   try {
     const { tipo, descricao, valor, data_inicio, data_fim } = req.body;
     const impulso = await Impulso.findByPk(req.params.id);
+    const usuario = req.user.empresa_id;
 
-    if (impulso) {
+    if (impulso.empresa_id === usuario.empresa_id) {
       impulso.tipo = tipo;
       impulso.descricao = descricao;
       impulso.valor = valor;
       impulso.data_inicio = data_inicio;
       impulso.data_fim = data_fim;
+      impulso.empresa_id = empresa_id;
+      
       await impulso.save();
       res.status(200).json(impulso);
     } else {
@@ -73,11 +78,11 @@ const AtualizarImpulso = async (req, res) => {
 const DeletarImpulso = async (req, res) => {
   try {
     const impulso = await Impulso.findByPk(req.params.id);
-    if (impulso) {
+    if (impulso.empresa_id == req.user.empresa_id) {
       await impulso.destroy();
       res.status(200).json({ message: 'Impulso deletado com sucesso' });
     } else {
-      res.status(404).json({ error: 'Impulso não encontrado' });
+      res.status(404).json({ error: 'Você não tem permissão para deletar esse impulso' });
     }
   } catch (error) {
     res.status(500).json({ error: 'Erro ao deletar Impulso' });

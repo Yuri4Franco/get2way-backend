@@ -17,6 +17,7 @@ module.exports = (sequelize, DataTypes) => {
   Impulso.init({
     descricao: DataTypes.STRING,
     valor: DataTypes.STRING,
+    empresa_id: DataTypes.INTEGER,
     data_inicio: DataTypes.STRING,
     data_fim: DataTypes.STRING
   }, {

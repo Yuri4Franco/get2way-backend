@@ -60,7 +60,7 @@ module.exports = {
         type: Sequelize.STRING(255),
         allowNull: true, 
       },
-      steakholders: {
+      stakeholders: {
         type: Sequelize.STRING(255),
         allowNull: true, 
       },
@@ -99,6 +99,16 @@ module.exports = {
       estilo: {
         type: Sequelize.JSON,
         allowNull: true,
+      },
+      impulso_id:{
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        references: {
+          model: 'impulsos',
+          key: 'id',
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
       },
       usuario_id: {
         type: Sequelize.INTEGER,

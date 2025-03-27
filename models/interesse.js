@@ -6,7 +6,7 @@ module.exports = (sequelize, DataTypes) => {
       Interesse.belongsTo(models.Oferta, {
         foreignKey: 'oferta_id', as: 'Oferta'
       });
-      Interesse.hasOne(models.Contrato, {
+      Interesse.hasOne(models.Parceria, {
         foreignKey: 'interesse_id',
       });
       Interesse.belongsTo(models.Usuario, {

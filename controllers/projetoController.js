@@ -1,4 +1,4 @@
-const { Op } = require('sequelize'); 
+const { Op } = require('sequelize');
 const { projetoDTO } = require('../dtos/projetoDTO');
 const Projeto = require('../models').Projeto;
 const Programa = require('../models').Programa;
@@ -11,7 +11,7 @@ const fs = require('fs');
 const path = require('path');
 
 // Selecionar o projeto
-const SelecionarProjeto = async (req, res) => {  
+const SelecionarProjeto = async (req, res) => {
   const { id } = req.params;
   const usuarioLogado = req.user;
 
@@ -47,7 +47,7 @@ const SelecionarProjeto = async (req, res) => {
 // Cadastrar um projeto
 const CadastrarProjeto = async (req, res) => {
   const usuarioLogado = req.user;
-  let { programa_id, keywords} = req.body;
+  let { programa_id, keywords } = req.body;
   usuario_id = req.user.id;
 
   try {
@@ -67,11 +67,10 @@ const CadastrarProjeto = async (req, res) => {
     const status = 'NÃO PÚBLICADO'
     const arquivoPath = req.file ? `/uploads/arquivos/${req.file.filename}` : null;
     const novoProjeto = await Projeto.create({ ...req.body, status, usuario_id, upload: arquivoPath });
-    
+
     if (typeof keywords === 'string') {
       keywords = keywords.split(',').map(kw => kw.trim());
     }
-
     if (keywords && keywords.length > 0) {
       for (const keywordNome of keywords) {
         let keyword = await Keyword.findOne({ where: { nome: keywordNome } });
@@ -170,7 +169,7 @@ const AtualizarProjeto = async (req, res) => {
 
 
 
-// Deletar um projeto (aplica segurança)
+// Deletar um projeto
 const DeletarProjeto = async (req, res) => {
   const { id } = req.params;
   const usuarioLogado = req.user;
@@ -197,7 +196,7 @@ const DeletarProjeto = async (req, res) => {
     await projeto.destroy();
     res.status(200).json({ message: 'Projeto deletado com sucesso.' });
   } catch (error) {
-    console.error('Erro ao deletar projeto:', error); 
+    console.error('Erro ao deletar projeto:', error);
     res.status(500).json({ error: 'Erro ao deletar o projeto.' });
   }
 };
@@ -270,7 +269,7 @@ const VerProjetos = async (req, res) => {
     res.status(500).json({ error: 'Erro ao buscar projetos.' });
   }
 };
-  
+
 
 
 module.exports = {

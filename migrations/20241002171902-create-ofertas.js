@@ -29,16 +29,6 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE,
       },
-      impulso_id: {
-        type: Sequelize.INTEGER,
-        allowNull: true,
-        references: {
-          model: 'impulsos',
-          key: 'id',
-        },
-        onDelete: 'SET NULL',
-        onUpdate: 'CASCADE',
-      },
     });
   },
 

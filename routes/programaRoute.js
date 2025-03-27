@@ -18,4 +18,7 @@ router.put('/programas/:id', AutenticarToken, programaController.AtualizarProgra
 // Rota para deletar um Programa
 router.delete('/programas/:id', AutenticarToken, programaController.DeletarPrograma);
 
+// Buscar programas de uma empresa
+router.get('/programas/empresa/:empresa_id', AutenticarToken, programaController.BuscarProgramaPorEmpresaId);
+
 module.exports = router;
