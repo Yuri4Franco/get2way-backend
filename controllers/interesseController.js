@@ -67,8 +67,38 @@ const CriarInteresse = async (req, res) => {
       return res.status(404).json({ message: 'Projeto ou responsável pelo projeto não encontrado.' });
     }
 
+    // Dados para o e-mail para o usuário que demonstrou interesse
+    const emailUsuario = usuario.email;
+    const nomeUsuario = usuario.nome;
+    const telefoneUsuario = usuario.telefone;
 
-    // Dados para o e-mail
+    const conteudoEmailUsuario = `
+      Olá ${nomeUsuario}, você demonstrou interesse no projeto "${projeto.nome}".
+      
+      Sua proposta:
+      ${proposta}
+      
+      Informações do Responsável pelo Projeto:
+      Nome: ${responsavel.nome}
+      Email: ${responsavel.email}
+      Telefone: ${responsavel.telefone}
+      ICT: ${ict.nome}
+
+      Entre em contato para mais detalhes.
+      
+      Atenciosamente,
+      Equipe Gate2Way
+
+    `;
+
+    // Enviar e-mail para o usuário que demonstrou interesse
+    await enviarEmail(
+      emailUsuario,
+      `Novo Interesse no Projeto: ${projeto.nome}`,
+      conteudoEmailUsuario
+    );
+
+    // Dados para o e-mail para o responsavel pelo projeto
     const emailResponsavel = responsavel.email;
     const nomeResponsavel = responsavel.nome;
     const nomeProjeto = projeto.nome;
@@ -76,10 +106,10 @@ const CriarInteresse = async (req, res) => {
     const conteudoEmail = `
       Olá ${nomeResponsavel}, um novo interesse foi registrado no seu projeto "${nomeProjeto}".
       
-      **Proposta:**
+      Proposta:
       ${proposta}
       
-      **Informações do Usuário que demonstrou interesse:**
+      Informações do Usuário que demonstrou interesse:
       Nome: ${usuario.nome}
       Email: ${usuario.email}
       Telefone: ${usuario.telefone}

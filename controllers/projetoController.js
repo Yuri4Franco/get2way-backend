@@ -10,6 +10,10 @@ const Impulso = require('../models').Impulso;
 const fs = require('fs');
 const path = require('path');
 
+const { literal } = require('sequelize');
+
+
+
 // Selecionar o projeto
 const SelecionarProjeto = async (req, res) => {
   const { id } = req.params;
@@ -17,6 +21,19 @@ const SelecionarProjeto = async (req, res) => {
 
   try {
     const projeto = await Projeto.findByPk(id, {
+      attributes: {
+        include: [
+          [literal(`(
+            SELECT COUNT(*)
+            FROM interesses AS i
+            WHERE i.oferta_id IN (
+              SELECT o.id
+              FROM ofertas AS o
+              WHERE o.projeto_id = Projeto.id
+            )
+          )`), 'total_interesses']
+        ]
+      },
       include: [
         {
           model: Programa,
@@ -251,7 +268,6 @@ const VerProjetos = async (req, res) => {
     });
   }
 
-  // Adiciona o impulso à lista de inclusões
   includeOptions.push({
     model: Impulso,
     as: 'Impulso',
@@ -260,16 +276,28 @@ const VerProjetos = async (req, res) => {
   try {
     const projetos = await Projeto.findAll({
       where: whereConditions,
+      attributes: {
+        include: [
+          [literal(`(
+            SELECT COUNT(*)
+            FROM interesses AS i
+            WHERE i.oferta_id IN (
+              SELECT o.id
+              FROM ofertas AS o
+              WHERE o.projeto_id = Projeto.id
+            )
+          )`), 'total_interesses']
+        ]
+      },
       include: includeOptions
     });
-
+    
     res.status(200).json(projetos);
   } catch (error) {
     console.error('Erro ao buscar projetos:', error);
     res.status(500).json({ error: 'Erro ao buscar projetos.' });
   }
 };
-
 
 
 module.exports = {

@@ -1,5 +1,7 @@
 const Usuario = require('../models').Usuario;
 const Responsavel = require('../models').Responsavel;
+const Empresa = require('../models').Empresa;
+const Ict = require('../models').Ict;
 const enviarEmail = require('../services/emailService');
 const { Op } = require('sequelize');
 const bcrypt = require('bcryptjs');
@@ -248,7 +250,14 @@ const VerUsuario = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const usuario = await Usuario.findByPk(id, { include: { model: Responsavel, as: 'Responsavels' } });
+    const usuario = await Usuario.findByPk(id, {
+      include: {
+        model: Responsavel, as: 'Responsavels', include: [
+          { model: Empresa, required: false },
+          { model: Ict, required: false }
+        ]
+      }
+    });
 
     if (req.user.tipo !== "admin" && usuario.id !== req.user.id) {
       return res.status(403).json({ message: 'Acesso negado.' });
@@ -267,7 +276,15 @@ const VerUsuario = async (req, res) => {
 // ADMIN Ver todos os usuários
 const VerTodosUsuarios = async (req, res) => {
   try {
-    const usuarios = await Usuario.findAll({ include: { model: Responsavel, as: 'Responsavels' } });
+    const usuarios = await Usuario.findAll({
+      include:
+      {
+        model: Responsavel, as: 'Responsavels', include: [
+          { model: Empresa, required: false },
+          { model: Ict, required: false }
+        ]
+      }
+    });
 
     if (req.user.tipo !== 'admin') {
       return res.status(403).json({ error: 'Acesso negado.' });
