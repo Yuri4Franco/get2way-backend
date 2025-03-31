@@ -1,5 +1,6 @@
 const Interesse = require('../models').Interesse;
 const Usuario = require('../models').Usuario;
+const Responsavel = require('../models').Responsavel;
 const Oferta = require('../models').Oferta;
 const Projeto = require('../models').Projeto;
 const Programa = require('../models').Programa;
@@ -123,6 +124,15 @@ async function BuscarInteressesPorOferta(req, res) {
         {
           model: Interesse,
           as: 'interesses',
+          include: {
+            model: Usuario,
+            include: {
+              model: Responsavel,
+              include: {
+                model: Ict
+              }
+            }
+          }
         },
       ],
     });

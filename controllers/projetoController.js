@@ -213,7 +213,7 @@ const VerProjetos = async (req, res) => {
   if (status) whereConditions.status = status;
   if (prioridade) whereConditions.prioridade = prioridade;
 
-  if (usuarioLogado.tipo !== 'admin') {
+  if (usuarioLogado.tipo === 'empresa') {
     includeOptions.push({
       model: Programa,
       include: [

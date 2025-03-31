@@ -1,4 +1,6 @@
 const Usuario = require('../models').Usuario;
+const Empresa = require('../models').Empresa;
+const Ict = require('../models').Ict;
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const Responsavel = require('../models').Responsavel;
@@ -37,6 +39,9 @@ const Login = async (req, res) => {
       { expiresIn: '1h' } // Opcional: define um tempo de expiração para o token
     );
 
+    const empresa = await Empresa.findByPk(empresa_id);
+    const ict = await Ict.findByPk(ict_id);
+
     // Retorna as informações no login
     res.status(200).json({
       message: 'Login bem-sucedido!',
@@ -47,7 +52,9 @@ const Login = async (req, res) => {
         email: usuario.email,
         tipo: usuario.tipo,
         empresa_id,
-        ict_id
+        ict_id,
+        empresa,
+        ict
       }
     });
   } catch (error) {
@@ -74,10 +81,13 @@ const VerificarToken = async (req, res) => {
     // Decodifica o token e verifica se é válido
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
+    const empresa = await Empresa.findByPk(decoded.empresa_id);
+    const ict = await Ict.findByPk(decoded.ict_id);
+
     // Retorna as informações do usuário e o status do token
     res.status(200).json({
       message: 'Token válido.',
-      usuario: decoded,
+      usuario: {...decoded, empresa, ict}
     });
   } catch (err) {
     res.status(401).json({ message: 'Token inválido ou expirado.' });
