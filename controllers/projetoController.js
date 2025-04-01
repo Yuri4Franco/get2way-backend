@@ -230,41 +230,40 @@ const VerProjetos = async (req, res) => {
   if (status) whereConditions.status = status;
   if (prioridade) whereConditions.prioridade = prioridade;
 
+  const programaInclude = {
+    model: Programa,
+    required: true,
+    include: [
+      {
+        model: Rota,
+        as: 'Rota',
+        required: true,
+        where: {},
+        include: { model: Empresa }
+      }
+    ]
+  };
+
   if (usuarioLogado.tipo === 'empresa') {
-    includeOptions.push({
-      model: Programa,
-      include: [
-        {
-          model: Rota,
-          as: 'Rota',
-          where: { empresa_id: usuarioLogado.empresa_id },
-          include: { model: Empresa }
-        }
-      ]
-    });
-  } else {
-    includeOptions.push({ model: Programa, include: [{ model: Rota, as: 'Rota', include: { model: Empresa } }] });
+    programaInclude.include[0].where.empresa_id = usuarioLogado.empresa_id;
   }
 
   if (rota_id) {
-    includeOptions.push({
-      model: Programa,
-      include: [
-        {
-          model: Rota,
-          as: 'Rota',
-          where: { id: rota_id },
-          include: { model: Empresa }
-        }
-      ]
-    });
+    programaInclude.include[0].where.id = rota_id;
   }
+
+  if (Object.keys(programaInclude.include[0].where).length === 0) {
+    delete programaInclude.include[0].where;
+  }
+
+  includeOptions.push(programaInclude);
 
   if (keyword) {
     includeOptions.push({
       model: Keyword,
       as: 'keywords',
-      where: { nome: keyword }
+      where: { nome: keyword },
+      required: true
     });
   }
 
@@ -291,13 +290,14 @@ const VerProjetos = async (req, res) => {
       },
       include: includeOptions
     });
-    
+
     res.status(200).json(projetos);
   } catch (error) {
     console.error('Erro ao buscar projetos:', error);
     res.status(500).json({ error: 'Erro ao buscar projetos.' });
   }
 };
+
 
 
 module.exports = {
