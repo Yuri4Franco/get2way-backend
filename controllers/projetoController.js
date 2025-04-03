@@ -50,7 +50,7 @@ const SelecionarProjeto = async (req, res) => {
       return res.status(404).json({ message: 'Projeto não encontrado.' });
     }
 
-    if (usuarioLogado.tipo !== 'admin' && projeto.Programa.Rota.empresa_id !== usuarioLogado.empresa_id) {
+    if (usuarioLogado.tipo === 'empresa' && projeto.Programa.Rota.empresa_id !== usuarioLogado.empresa_id) {
       return res.status(403).json({ message: 'Acesso negado.' });
     }
 
