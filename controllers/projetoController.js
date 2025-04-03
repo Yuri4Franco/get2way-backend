@@ -229,6 +229,7 @@ const VerProjetos = async (req, res) => {
   if (programa_id) whereConditions.programa_id = programa_id;
   if (status) whereConditions.status = status;
   if (prioridade) whereConditions.prioridade = prioridade;
+  if (usuarioLogado.tipo === 'ict') whereConditions.status = "PUBLICADO";
 
   const programaInclude = {
     model: Programa,
