@@ -49,7 +49,7 @@ module.exports = {
     // Deletar responsáveis associados
     await queryInterface.bulkDelete(
       'Responsaveis',
-      { usuario_id: Sequelize.literal(`(SELECT id FROM Usuarios WHERE email IN ('admin@example.com'))`) },
+      { usuario_id: Sequelize.literal(`(SELECT id FROM usuarios WHERE email IN ('admin@example.com'))`) },
       {}
     );
 
