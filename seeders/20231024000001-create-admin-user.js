@@ -7,7 +7,7 @@ module.exports = {
     const dateNow = new Date();
 
     // Inserir usuário admin
-    await queryInterface.bulkInsert('Usuarios', [
+    await queryInterface.bulkInsert('usuarios', [
       {
         nome: 'Administrador',
         email: 'admin@example.com',
@@ -23,7 +23,7 @@ module.exports = {
 
     // Consultar IDs criados para associação
     const usuarios = await queryInterface.sequelize.query(
-      `SELECT id, email FROM Usuarios WHERE email IN ('admin@example.com');`,
+      `SELECT id, email FROM usuarios WHERE email IN ('admin@example.com');`,
       { type: Sequelize.QueryTypes.SELECT }
     );
 
@@ -55,7 +55,7 @@ module.exports = {
 
     // Deletar usuários
     await queryInterface.bulkDelete(
-      'Usuarios',
+      'usuarios',
       { email: { [Sequelize.Op.in]: ['admin@example.com'] } },
       {}
     );
