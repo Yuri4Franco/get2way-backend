@@ -27,7 +27,7 @@ module.exports = {
       { type: Sequelize.QueryTypes.SELECT }
     );
 
-    // Associar Responsaveis
+    // Associar responsaveis
     const responsaveis = usuarios.map((usuario) => {
       let cargo = '';
       if (usuario.email === 'admin@example.com') cargo = 'Administrador';
@@ -42,13 +42,13 @@ module.exports = {
       };
     });
 
-    await queryInterface.bulkInsert('Responsaveis', responsaveis);
+    await queryInterface.bulkInsert('responsaveis', responsaveis);
   },
 
   down: async (queryInterface, Sequelize) => {
     // Deletar responsáveis associados
     await queryInterface.bulkDelete(
-      'Responsaveis',
+      'responsaveis',
       { usuario_id: Sequelize.literal(`(SELECT id FROM usuarios WHERE email IN ('admin@example.com'))`) },
       {}
     );
