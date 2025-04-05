@@ -1,5 +1,6 @@
+require('dotenv').config();
 const { Sequelize } = require('sequelize');
-const config = require('../config/config.json'); // Importando o config.json
+const config = require('./config.js'); // Importando o config.js
 const env = process.env.NODE_ENV || 'development'; // Definindo o ambiente
 
 // Pegando as configurações do config.json de acordo com o ambiente
