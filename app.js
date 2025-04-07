@@ -18,6 +18,7 @@ const cors = require("cors");
 
 const allowedOrigins = [
   "https://ga2way-production.up.railway.app",
+  "https://www.gate2way.com.br",
   "http://localhost:5173",
 ]; // Deploy do front-end no railway + localhost
 
