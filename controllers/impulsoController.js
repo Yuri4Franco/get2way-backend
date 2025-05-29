@@ -1,5 +1,5 @@
 const Impulso = require("../models").Impulso;
-const { Op } = require('sequelize');
+const { Op, sequelize } = require('sequelize');
 
 // Criar um novo Impulso
 const CadastrarImpulso = async (req, res) => {
@@ -27,13 +27,19 @@ const CadastrarImpulso = async (req, res) => {
 const BuscarTodosImpulsos = async (req, res) => {
   const { empresa_id } = req.user;
   try {
-    const impulsos = await Impulso.findAll({
-      where: {
+    const whereClause = empresa_id != null
+      ? {
         [Op.or]: [
           { empresa_id: empresa_id },
-          { empresa_id: null },
-        ],
-      },
+          { empresa_id: null }
+        ]
+      } : null
+
+    const impulsos = await Impulso.findAll({
+      where: whereClause, order: [
+        // impulsos padrão primeio
+        ['empresa_id', 'ASC']
+      ]
     });
     res.status(200).json(impulsos);
   } catch (error) {
