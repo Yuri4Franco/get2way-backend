@@ -45,6 +45,22 @@ const CadastrarEmpresa = async (req, res) => {
   } catch (error) {
     console.error('Erro ao cadastrar empresa:', error);
 
+    if (error.name === 'SequelizeUniqueConstraintError') { //erro de unique constraint não respeitado
+      var field = error.errors[0].path;
+      
+      if (field === 'razao_social') {
+        return res.status(409).json({ 
+          error: 'Esta razão social já está cadastrada para outra empresa.' 
+        });
+      } 
+      
+      if (field === 'cnpj') {
+        return res.status(409).json({ 
+          error: 'Este CNPJ já está cadastrado no sistema para outra empresa.' 
+        });
+      }
+    }
+
     // Remove a imagem se houver erro no processo
     if (req.file && req.file.path) {
       fs.unlink(req.file.path, (err) => {

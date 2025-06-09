@@ -49,6 +49,22 @@ const CadastrarIct = async (req, res) => {
       });
     }
 
+    if (error.name === 'SequelizeUniqueConstraintError') { //erro de unique constraint não respeitado
+      var field = error.errors[0].path;
+      
+      if (field === 'razao_social') {
+        return res.status(409).json({ 
+          error: 'Esta razão social já está cadastrada para outra ICT.' 
+        });
+      } 
+      
+      if (field === 'cnpj') {
+        return res.status(409).json({ 
+          error: 'Este CNPJ já está cadastrado no sistema para outra ICT.' 
+        });
+      }
+    }
+
     res.status(500).json({ error: `Erro ao criar ICT: ${error.message}` });
   }
 };
