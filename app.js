@@ -20,6 +20,7 @@ const allowedOrigins = [
   "https://ga2way-production.up.railway.app",
   "https://www.gate2way.com.br",
   "http://localhost:5173",
+  "http://localhost:8080"
 ]; // Deploy do front-end no railway + localhost
 
 app.use(
