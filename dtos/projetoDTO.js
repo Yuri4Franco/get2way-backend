@@ -15,6 +15,7 @@ const projetoDTO = (projeto) => {
     requisitos: projeto.requisitos,
     stakeholders: projeto.stakeholders,
     equipe: projeto.equipe,
+    prioridade: projeto.prioridade,
     premissas: projeto.premissas,
     grupo_de_entrega: projeto.grupo_de_entrega,
     restricoes: projeto.restricoes,

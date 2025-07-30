@@ -15,11 +15,13 @@ const interesseRoutes = require("./routes/interesseRoute");
 const parceriaRoutes = require("./routes/parceriaRoute");
 const authRoute = require("./routes/authRoute");
 const cors = require("cors");
+const cookieParser = require('cookie-parser');
 
 const allowedOrigins = [
   "https://ga2way-production.up.railway.app",
   "https://www.gate2way.com.br",
   "http://localhost:5173",
+  "http://192.168.3.102:5173"
 ]; // Deploy do front-end no railway + localhost
 
 app.use(
@@ -31,6 +33,8 @@ app.use(
 
 // Middleware para lidar com JSON
 app.use(express.json());
+
+app.use(cookieParser());
 
 // Middleware para lidar os arquivos uploads
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));

@@ -162,6 +162,16 @@ const CadastrarUsuario = async (req, res) => {
       usuario: novoUsuario
     });
   } catch (error) {
+    if (error.name === 'SequelizeUniqueConstraintError') { //erro de unique constraint não respeitado
+      var field = error.errors[0].path;
+      
+      if (field === 'email') {
+        return res.status(409).json({ 
+          error: 'Este e-mail já é usado por outro usuário' 
+        });
+      } 
+    }
+
     console.error('Erro ao cadastrar o usuário e responsável:', error);
     res.status(500).json({ error: 'Erro ao cadastrar o usuário e responsável.' });
   }
@@ -223,6 +233,17 @@ const AtualizarUsuario = async (req, res) => {
     res.status(200).json({ message: 'Usuário atualizado com sucesso.', usuario, responsavel });
   } catch (error) {
     console.error('Erro ao atualizar usuário:', error);
+
+    if (error.name === 'SequelizeUniqueConstraintError') { //erro de unique constraint não respeitado
+      var field = error.errors[0].path;
+      
+      if (field === 'email') {
+        return res.status(409).json({ 
+          error: 'Este e-mail já é usado por outro usuário' 
+        });
+      } 
+    }
+
     res.status(500).json({ error: 'Erro ao atualizar o usuário.' });
   }
 };

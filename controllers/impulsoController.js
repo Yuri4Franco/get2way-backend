@@ -66,15 +66,15 @@ const AtualizarImpulso = async (req, res) => {
   try {
     const { tipo, descricao, valor, data_inicio, data_fim } = req.body;
     const impulso = await Impulso.findByPk(req.params.id);
-    const usuario = req.user.empresa_id;
+    const usuario = req.user;
 
-    if (impulso.empresa_id === usuario.empresa_id) {
-      impulso.tipo = tipo;
+    if (impulso.empresa_id === usuario?.empresa_id || usuario.tipo === 'admin') {
+      impulso.tipo = ''; //temporário
       impulso.descricao = descricao;
       impulso.valor = valor;
       impulso.data_inicio = data_inicio;
       impulso.data_fim = data_fim;
-      impulso.empresa_id = empresa_id;
+      impulso.empresa_id = usuario.empresa_id;
 
       await impulso.save();
       res.status(200).json(impulso);

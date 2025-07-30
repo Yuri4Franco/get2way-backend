@@ -2,6 +2,8 @@ const { Op } = require('sequelize');
 const { projetoDTO } = require('../dtos/projetoDTO');
 const Projeto = require('../models').Projeto;
 const Programa = require('../models').Programa;
+const Oferta = require('../models').Oferta;
+const Interesse = require('../models').Interesse;
 const Rota = require('../models').Rota;
 const Keyword = require('../models').Keyword;
 const ProjetoKeyword = require('../models').ProjetoKeyword;
@@ -42,6 +44,10 @@ const SelecionarProjeto = async (req, res) => {
         {
           model: Impulso,
           as: 'Impulso',
+        }, {
+          model: Oferta,
+          as: 'Oferta',
+          include: [{model: Interesse, as: 'interesses'}]
         }
       ]
     });
@@ -54,9 +60,10 @@ const SelecionarProjeto = async (req, res) => {
       return res.status(403).json({ message: 'Acesso negado.' });
     }
 
-    const projetoData = projetoDTO(projeto);
+    const projetoData = projeto;
     res.status(200).json(projetoData);
   } catch (error) {
+    console.error(error)
     res.status(500).json({ error: 'Erro ao buscar o projeto.' });
   }
 };
@@ -66,7 +73,7 @@ const CadastrarProjeto = async (req, res) => {
   const usuarioLogado = req.user;
   let { programa_id, keywords } = req.body;
   usuario_id = req.user.id;
-
+  
   try {
     const programa = await Programa.findByPk(programa_id, {
       include: { model: Rota, as: 'Rota' }
