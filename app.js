@@ -14,15 +14,13 @@ const ofertaRoutes = require("./routes/ofertaRoute");
 const interesseRoutes = require("./routes/interesseRoute");
 const parceriaRoutes = require("./routes/parceriaRoute");
 const authRoute = require("./routes/authRoute");
+const dashboardRoute = require("./routes/dashboard");
 const cors = require("cors");
 const cookieParser = require('cookie-parser');
 
 const allowedOrigins = [
-  "https://ga2way-production.up.railway.app",
   "https://www.gate2way.com.br",
-  "http://localhost:5173",
-  "http://192.168.3.102:5173"
-]; // Deploy do front-end no railway + localhost
+];
 
 app.use(
   cors({
@@ -63,6 +61,8 @@ app.use("/api", interesseRoutes);
 app.use("/api", parceriaRoutes);
 
 app.use("/api", authRoute);
+
+app.use("/api", dashboardRoute);
 
 // Iniciar o servidor
 const port = process.env.PORT || 3001;

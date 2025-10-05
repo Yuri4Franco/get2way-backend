@@ -1,13 +1,13 @@
-const Interesse = require('../models').Interesse;
-const Usuario = require('../models').Usuario;
-const Responsavel = require('../models').Responsavel;
-const Oferta = require('../models').Oferta;
-const Projeto = require('../models').Projeto;
-const Programa = require('../models').Programa;
-const Rota = require('../models').Rota;
-const Ict = require('../models').Ict;
-const Empresa = require('../models').Empresa;
-const enviarEmail = require('../services/emailService');
+const Interesse = require("../models").Interesse;
+const Usuario = require("../models").Usuario;
+const Responsavel = require("../models").Responsavel;
+const Oferta = require("../models").Oferta;
+const Projeto = require("../models").Projeto;
+const Programa = require("../models").Programa;
+const Rota = require("../models").Rota;
+const Ict = require("../models").Ict;
+const Empresa = require("../models").Empresa;
+const enviarEmail = require("../services/emailService");
 
 // Criar um interesse de um usuário em uma oferta
 
@@ -21,7 +21,7 @@ const CriarInteresse = async (req, res) => {
     const usuario = await Usuario.findByPk(usuarioLogado.id);
 
     // Permitir que o admin ignore a verificação de empresa
-    if (usuarioLogado.tipo !== 'admin') {
+    if (usuarioLogado.tipo !== "admin") {
       const oferta = await Oferta.findByPk(oferta_id, {
         include: {
           model: Projeto,
@@ -29,20 +29,27 @@ const CriarInteresse = async (req, res) => {
             model: Programa,
             include: {
               model: Rota,
-              as: 'Rota',
-              where: { empresa_id: usuarioLogado.empresa_id }
-            }
-          }
-        }
+              as: "Rota",
+              where: { empresa_id: usuarioLogado.empresa_id },
+            },
+          },
+        },
       });
 
       if (!oferta) {
-        return res.status(403).json({ message: 'Acesso negado: Oferta não pertence a um projeto da sua empresa.' });
+        return res.status(403).json({
+          message:
+            "Acesso negado: Oferta não pertence a um projeto da sua empresa.",
+        });
       }
     }
 
     // Criar o interesse
-    const interesse = await Interesse.create({ oferta_id, proposta, usuario_id: usuarioLogado.id });
+    const interesse = await Interesse.create({
+      oferta_id,
+      proposta,
+      usuario_id: usuarioLogado.id,
+    });
 
     // Obter informações adicionais para o e-mail
     const oferta = await Oferta.findByPk(oferta_id, {
@@ -50,21 +57,23 @@ const CriarInteresse = async (req, res) => {
         model: Projeto,
         include: {
           model: Usuario, // Responsável pelo projeto
-          as: 'Responsavel',
-          attributes: ['nome', 'email'] // Incluindo o ICT (ou o nome da organização)
-        }
-      }
+          as: "Responsavel",
+          attributes: ["nome", "email"], // Incluindo o ICT (ou o nome da organização)
+        },
+      },
     });
 
     if (!oferta) {
-      return res.status(404).json({ message: 'Oferta não encontrada.' });
+      return res.status(404).json({ message: "Oferta não encontrada." });
     }
 
     const projeto = oferta.Projeto;
     const responsavel = projeto.Responsavel;
 
     if (!projeto || !responsavel) {
-      return res.status(404).json({ message: 'Projeto ou responsável pelo projeto não encontrado.' });
+      return res.status(404).json({
+        message: "Projeto ou responsável pelo projeto não encontrado.",
+      });
     }
 
     // Dados para o e-mail para o usuário que demonstrou interesse
@@ -129,10 +138,15 @@ const CriarInteresse = async (req, res) => {
     );
 
     // Responder com sucesso
-    res.status(201).json({ message: 'Interesse criado com sucesso e e-mail enviado.', interesse });
+    res.status(201).json({
+      message: "Interesse criado com sucesso e e-mail enviado.",
+      interesse,
+    });
   } catch (error) {
-    console.error('Erro ao criar interesse:', error);
-    res.status(500).json({ error: `Erro ao criar interesse: ${error.message}` });
+    console.error("Erro ao criar interesse:", error);
+    res
+      .status(500)
+      .json({ error: `Erro ao criar interesse: ${error.message}` });
   }
 };
 
@@ -140,120 +154,128 @@ const CriarInteresse = async (req, res) => {
 async function BuscarInteressesPorOferta(req, res) {
   try {
     const ofertaId = req.params.ofertaId;
-    console.log("Iniciando busca de interesses para a oferta:", ofertaId); // Log para verificar ofertaId
 
-    // Verifique se `ofertaId` está presente
     if (!ofertaId) {
-      console.log("Erro: ID da oferta não foi fornecido na URL.");
-      return res.status(400).json({ message: "ID da oferta é necessário" });
+      return res.status(400).json({ message: "Oferta não encontrada." });
     }
 
-    console.log("Buscando oferta com ID:", ofertaId);
     const oferta = await Oferta.findByPk(ofertaId, {
       include: [
         {
           model: Interesse,
-          as: 'interesses',
+          as: "interesses",
           include: {
             model: Usuario,
             include: {
               model: Responsavel,
               include: {
-                model: Ict
-              }
-            }
-          }
+                model: Ict,
+              },
+            },
+          },
         },
       ],
     });
 
     if (!oferta) {
-      console.log("Oferta não encontrada.");
       return res.status(404).json({ message: "Oferta não encontrada" });
     }
 
     console.log("Oferta encontrada:", oferta.toJSON());
-    console.log("Interesses associados à oferta:", oferta.interesses);
 
     res.json(oferta);
   } catch (error) {
-    console.error("Erro ao buscar interesses da oferta:", error);
-    res.status(500).json({ message: "Erro ao buscar interesses" });
+    console.error("Erro ao buscar propostas da oferta:", error);
+    res.status(500).json({ message: "Erro ao buscar propostas" });
   }
-};
+}
 
 // Selecionar um interesse
 const SelecionarInteresse = async (req, res) => {
   const usuarioLogado = req.user;
-  const { interesse_id } = req.params;
+  const { id } = req.params;
 
   try {
-    console.log("Iniciando processo de seleção do interesse:", interesse_id);
+    console.log("Iniciando processo de seleção do interesse:", id);
     console.log("Usuário logado:", usuarioLogado);
 
-    // Buscar o interesse com base no interesse_id fornecido e incluir a oferta e suas associações
-    const interesse = await Interesse.findByPk(interesse_id, {
+    // Buscar o interesse com base no id fornecido e incluir a oferta e suas associações
+    const interesse = await Interesse.findByPk(id, {
       include: {
         model: Oferta,
-        as: 'Oferta',
+        as: "Oferta",
         include: {
           model: Projeto,
           include: {
             model: Programa,
             include: {
               model: Rota,
-              as: 'Rota',
-              where: usuarioLogado.tipo === 'admin' ? {} : { empresa_id: usuarioLogado.empresa_id },
-              include: { model: Empresa }
-            }
-          }
-        }
-      }
+              as: "Rota",
+              where:
+                usuarioLogado.tipo === "admin"
+                  ? {}
+                  : { empresa_id: usuarioLogado.empresa_id },
+              include: { model: Empresa },
+            },
+          },
+        },
+      },
     });
 
     console.log("Status atualizado com sucesso. Interesse selecionado.");
-    res.status(200).json({ message: 'Interesse selecionado com sucesso.', interesse });
+    res
+      .status(200)
+      .json({ message: "Interesse selecionado com sucesso.", interesse });
   } catch (error) {
     console.error("Erro ao selecionar o interesse:", error);
-    res.status(500).json({ error: `Erro ao selecionar o interesse: ${error.message}` });
+    res
+      .status(500)
+      .json({ error: `Erro ao selecionar o interesse: ${error.message}` });
   }
 };
-
 
 // Rejeitar um interesse
 const RejeitarInteresse = async (req, res) => {
   const usuarioLogado = req.user;
-  const { interesse_id } = req.params;
+  const { id } = req.params;
 
   try {
-    const interesse = await Interesse.findByPk(interesse_id, {
+    const interesse = await Interesse.findByPk(id, {
       include: {
         model: Oferta,
+        as: "Oferta",
         include: {
           model: Projeto,
           include: {
             model: Programa,
             include: {
               model: Rota,
-              where: usuarioLogado.tipo === 'admin' ? {} : { empresa_id: usuarioLogado.empresa_id },
-              include: { model: Empresa }
-            }
-          }
-        }
-      }
+              as: "Rota",
+              where:
+                usuarioLogado.tipo === "admin"
+                  ? {}
+                  : { empresa_id: usuarioLogado.empresa_id },
+              include: { model: Empresa },
+            },
+          },
+        },
+      },
     });
 
     if (!interesse) {
-      return res.status(404).json({ message: 'Interesse não encontrado ou não pertence a um projeto da sua empresa.' });
+      return res.status(404).json({
+        message:
+          "Proposta não encontrada ou não pertence a um projeto da sua empresa.",
+      });
     }
 
-    await interesse.destroy();
-    res.status(200).json({ message: 'Interesse rejeitado e removido com sucesso.' });
+    await interesse.update({ status: Interesse.STATUS.RECUSADO });
+    res.status(200).json({ message: "Proposta rejeitada com sucesso." });
   } catch (error) {
-    res.status(500).json({ error: `Erro ao rejeitar o interesse: ${error.message}` });
+    console.error("Erro ao rejeitar proposta:", error);
+    res.status(500).json({ error: "Ocorreu um erro ao rejeitar a proposta" });
   }
 };
-
 
 // Listar todos os interesses
 const ListarInteresses = async (req, res) => {
@@ -264,48 +286,48 @@ const ListarInteresses = async (req, res) => {
     let includeOptions = []; // Opções de inclusão nas associações
 
     // Caso o usuário seja um ICT
-    if (usuarioLogado.tipo === 'ict') {
+    if (usuarioLogado.tipo === "ict") {
       whereConditions = { usuario_id: usuarioLogado.id }; // Apenas os interesses criados por este usuário
     }
 
     // Caso o usuário seja uma empresa (para gerenciar interesses em seus projetos)
-    if (usuarioLogado.tipo === 'empresa') {
+    if (usuarioLogado.tipo === "empresa") {
       includeOptions = [
         {
           model: Oferta,
-          as: 'Oferta',
+          as: "Oferta",
           include: {
             model: Projeto,
             include: {
               model: Programa,
               include: {
                 model: Rota,
-                as: 'Rota',
+                as: "Rota",
                 where: { empresa_id: usuarioLogado.empresa_id }, // Restringe às rotas da empresa
-              }
-            }
-          }
-        }
+              },
+            },
+          },
+        },
       ];
     }
 
     // Caso o usuário seja admin (sem restrições)
-    if (usuarioLogado.tipo === 'admin') {
+    if (usuarioLogado.tipo === "admin") {
       includeOptions = [
         {
           model: Oferta,
-          as: 'Oferta',
+          as: "Oferta",
           include: {
             model: Projeto,
             include: {
               model: Programa,
               include: {
                 model: Rota,
-                as: 'Rota',
-              }
-            }
-          }
-        }
+                as: "Rota",
+              },
+            },
+          },
+        },
       ];
     }
 
@@ -318,16 +340,15 @@ const ListarInteresses = async (req, res) => {
     // Responde com a lista de interesses
     res.status(200).json(interesses);
   } catch (error) {
-    console.error('Erro ao listar interesses:', error);
-    res.status(500).json({ error: 'Erro ao listar interesses' });
+    console.error("Erro ao listar interesses: ", error);
+    res.status(500).json({ error: "Erro ao listar interesses" });
   }
 };
-
 
 module.exports = {
   CriarInteresse,
   BuscarInteressesPorOferta,
   SelecionarInteresse,
   ListarInteresses,
-  RejeitarInteresse
+  RejeitarInteresse,
 };

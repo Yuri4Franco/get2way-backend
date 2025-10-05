@@ -15,7 +15,7 @@ const enviarEmail = require("../services/emailService.js");
 // Formalizar uma parceria
 const AceitarInteresse = async (req, res) => {
   const usuarioLogado = req.user;
-  const { interesse_id, data_inicio, data_fim } = req.body;
+  const { interesse_id } = req.body;
 
   const t = await sequelize.transaction();
 
@@ -83,38 +83,42 @@ const AceitarInteresse = async (req, res) => {
     oferta.status = "ENCERRADA";
     await oferta.save({ transaction: t });
 
-    // Remover outros interesses associados à mesma oferta
-    await Interesse.destroy({
-      where: { oferta_id: oferta.id, id: { [Op.ne]: interesse_id } },
-      transaction: t,
-    });
+    // Aceitar interesse
+    await Interesse.update(
+      { status: Interesse.STATUS.ACEITO },
+      {
+        where: {
+          oferta_id: oferta.id,
+          status: Interesse.STATUS.PENDENTE,
+          id: interesse_id,
+        },
+        transaction: t,
+      }
+    );
+
+    // Rejeitar outros interesses associados à mesma oferta
+    await Interesse.update(
+      { status: Interesse.STATUS.RECUSADO },
+      {
+        where: {
+          oferta_id: oferta.id,
+          status: Interesse.STATUS.PENDENTE,
+          id: { [Op.ne]: interesse_id },
+        },
+        transaction: t,
+      }
+    );
 
     // Obter o e-mail do interessado e os dados do responsável pelo projeto
-    console.log("Buscando interessado pelo usuario_id:", interesse.usuario_id);
     const interessado = await Usuario.findByPk(interesse.usuario_id);
-
-    console.log("Buscando responsável pelo projeto...");
     const responsavelProjeto = interesse.Oferta.Projeto.Responsavel;
 
-    // Log para verificar se os dados do interessado e responsável foram obtidos corretamente
-    if (interessado) {
-      console.log("Interessado encontrado:", {
-        nome: interessado.nome,
-        email: interessado.email,
-      });
-    } else {
-      console.log("Interessado não encontrado.");
-    }
+    await t.commit();
 
-    if (responsavelProjeto) {
-      console.log("Responsável pelo projeto encontrado:", {
-        nome: responsavelProjeto.nome,
-        email: responsavelProjeto.email,
-        telefone: responsavelProjeto.telefone,
-      });
-    } else {
-      console.log("Responsável pelo projeto não encontrado.");
-    }
+    res.status(201).json({
+      message: "Parceria formalizada com sucesso",
+      parceria: novaParceria,
+    });
 
     // Envio de e-mail, caso ambos tenham sido encontrados
     if (interessado && responsavelProjeto) {
@@ -132,23 +136,16 @@ const AceitarInteresse = async (req, res) => {
       );
       console.log("E-mail enviado para:", responsavelProjeto.email);
     } else {
-      console.log(
+      console.error(
         "Interessado ou responsável pelo projeto não encontrado, e-mail não enviado."
       );
     }
-
-    await t.commit();
-
-    res.status(201).json({
-      message: "Parceria formalizado com sucesso!",
-      parceria: novaParceria,
-    });
   } catch (error) {
     await t.rollback();
-    console.error("Erro ao formalizar o parceria:", error);
+    console.error("Erro ao formalizar a parceria:", error);
     res
       .status(500)
-      .json({ error: `Erro ao formalizar o parceria: ${error.message}` });
+      .json({ error: `Erro ao formalizar a parceria: ${error.message}` });
   }
 };
 
@@ -298,6 +295,36 @@ const ListarParcerias = async (req, res) => {
         include: {
           model: Interesse,
           where: { usuario_id: usuarioLogado.id },
+          include: [
+            {
+              model: Oferta,
+              as: "Oferta",
+              include: {
+                model: Projeto,
+                include: {
+                  model: Programa,
+                  include: {
+                    model: Rota,
+                    as: "Rota",
+                    include: { model: Empresa },
+                  },
+                },
+              },
+            },
+            {
+              model: Usuario,
+              include: {
+                model: Responsavel,
+                include: { model: Ict },
+              },
+            },
+          ],
+        },
+      });
+    } else {
+      parcerias = await Parceria.findAll({
+        include: {
+          model: Interesse,
           include: [
             {
               model: Oferta,
