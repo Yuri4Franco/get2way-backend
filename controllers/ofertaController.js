@@ -42,7 +42,7 @@ const CadastrarOferta = async (req, res) => {
     res.status(201).json(novaOferta);
   } catch (error) {
     console.error('Erro ao criar Oferta:', error);
-    res.status(500).json({ error: `Erro ao criar Oferta: ${error.message}` });
+    res.status(500).json({ message: `Erro ao criar Oferta: ${error.message}` });
   }
 };
 
@@ -124,7 +124,7 @@ const VerOfertas = async (req, res) => {
     res.status(200).json(ofertas);
   } catch (error) {
     console.error('Erro ao buscar ofertas:', error);
-    res.status(500).json({ error: `Erro ao buscar ofertas: ${error.message}` });
+    res.status(500).json({ message: `Erro ao buscar ofertas: ${error.message}` });
   }
 };
 
@@ -156,7 +156,7 @@ const SelecionarOferta = async (req, res) => {
     });
 
     if (!oferta) {
-      return res.status(404).json({ error: 'Oferta não encontrada.' });
+      return res.status(404).json({ message: 'Oferta não encontrada.' });
     }
 
     if (usuarioLogado.tipo === 'empresa' && oferta.Projeto.Programa.Rota.empresa_id !== usuarioLogado.empresa_id) {
@@ -170,7 +170,7 @@ const SelecionarOferta = async (req, res) => {
     res.status(200).json(oferta);
   } catch (error) {
     console.error('Erro ao buscar oferta:', error);
-    res.status(500).json({ error: 'Erro ao buscar oferta.' });
+    res.status(500).json({ message: 'Erro ao buscar oferta.' });
   }
 };
 
@@ -207,7 +207,7 @@ const AtualizarOferta = async (req, res) => {
 
     res.status(200).json(oferta);
   } catch (error) {
-    res.status(500).json({ error: 'Erro ao atualizar Oferta' });
+    res.status(500).json({ message: 'Erro ao atualizar Oferta' });
   }
 };
 
@@ -245,7 +245,7 @@ const DeletarOferta = async (req, res) => {
 
     res.status(200).json({ message: 'Oferta deletada com sucesso' });
   } catch (error) {
-    res.status(500).json({ error: 'Erro ao deletar Oferta' });
+    res.status(500).json({ message: 'Erro ao deletar Oferta' });
   }
 };
 

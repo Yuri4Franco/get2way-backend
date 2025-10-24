@@ -146,7 +146,7 @@ const CriarInteresse = async (req, res) => {
     console.error("Erro ao criar interesse:", error);
     res
       .status(500)
-      .json({ error: `Erro ao criar interesse: ${error.message}` });
+      .json({ message: `Erro ao criar interesse: ${error.message}` });
   }
 };
 
@@ -230,7 +230,7 @@ const SelecionarInteresse = async (req, res) => {
     console.error("Erro ao selecionar o interesse:", error);
     res
       .status(500)
-      .json({ error: `Erro ao selecionar o interesse: ${error.message}` });
+      .json({ message: `Erro ao selecionar o interesse: ${error.message}` });
   }
 };
 
@@ -273,7 +273,7 @@ const RejeitarInteresse = async (req, res) => {
     res.status(200).json({ message: "Proposta rejeitada com sucesso." });
   } catch (error) {
     console.error("Erro ao rejeitar proposta:", error);
-    res.status(500).json({ error: "Ocorreu um erro ao rejeitar a proposta" });
+    res.status(500).json({ message: "Ocorreu um erro ao rejeitar a proposta" });
   }
 };
 
@@ -360,7 +360,7 @@ const ListarInteresses = async (req, res) => {
     res.status(200).json(interesses);
   } catch (error) {
     console.error("Erro ao listar interesses: ", error);
-    res.status(500).json({ error: "Erro ao listar interesses" });
+    res.status(500).json({ message: "Erro ao listar interesses" });
   }
 };
 

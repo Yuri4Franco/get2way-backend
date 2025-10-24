@@ -33,7 +33,7 @@ const TrocarSenhaPrimeiroAcesso = async (req, res) => {
     }
   } catch (error) {
     console.error('Erro ao trocar senha:', error);
-    res.status(500).json({ error: 'Erro ao trocar senha.' });
+    res.status(500).json({ message: 'Erro ao trocar senha.' });
   }
 };
 
@@ -53,7 +53,7 @@ const ResponsavelCadastrarUsuario = async (req, res) => {
     console.log('Responsável logado:', responsavelLogado);
 
     if (!responsavelLogado) {
-      return res.status(403).json({ error: 'Usuário não tem permissão para cadastrar.' });
+      return res.status(403).json({ message: 'Usuário não tem permissão para cadastrar.' });
     }
     let empresa_id = null;
     let ict_id = null;
@@ -61,15 +61,15 @@ const ResponsavelCadastrarUsuario = async (req, res) => {
     if (usuarioLogado.tipo === 'empresa') {
       empresa_id = responsavelLogado.empresa_id;
       if (!empresa_id) {
-        return res.status(403).json({ error: 'Empresa não associada ao responsável logado.' });
+        return res.status(403).json({ message: 'Empresa não associada ao responsável logado.' });
       }
     } else if (usuarioLogado.tipo === 'ict') {
       ict_id = responsavelLogado.ict_id;
       if (!ict_id) {
-        return res.status(403).json({ error: 'ICT não associada ao responsável logado.' });
+        return res.status(403).json({ message: 'ICT não associada ao responsável logado.' });
       }
     } else {
-      return res.status(400).json({ error: 'Tipo de usuário inválido.' });
+      return res.status(400).json({ message: 'Tipo de usuário inválido.' });
     }
 
     const senhaHash = await bcrypt.hash(senha, 10);
@@ -103,7 +103,7 @@ const ResponsavelCadastrarUsuario = async (req, res) => {
     });
   } catch (error) {
     console.error('Erro ao cadastrar o usuário e responsável:', error); // Log do erro
-    res.status(500).json({ error: 'Erro ao cadastrar o usuário e responsável.' });
+    res.status(500).json({ message: 'Erro ao cadastrar o usuário e responsável.' });
   }
 };
 
@@ -114,7 +114,7 @@ const CadastrarUsuario = async (req, res) => {
 
   // Verifica se o usuário logado é admin
   if (usuarioLogado.tipo !== 'admin') {
-    return res.status(403).json({ error: 'Acesso negado. Apenas administradores podem cadastrar usuários.' });
+    return res.status(403).json({ message: 'Acesso negado. Apenas administradores podem cadastrar usuários.' });
   }
 
   try {
@@ -140,7 +140,7 @@ const CadastrarUsuario = async (req, res) => {
     } else if (tipo === 'ict' && ict_id) {
       responsavelIctId = ict_id;
     } else if (tipo === 'empresa' || tipo === 'ict') {
-      return res.status(400).json({ error: 'É necessário informar empresa_id ou ict_id para o tipo de usuário especificado.' });
+      return res.status(400).json({ message: 'É necessário informar empresa_id ou ict_id para o tipo de usuário especificado.' });
     }
 
     // Cria o responsável associado ao usuário
@@ -173,7 +173,7 @@ const CadastrarUsuario = async (req, res) => {
     }
 
     console.error('Erro ao cadastrar o usuário e responsável:', error);
-    res.status(500).json({ error: 'Erro ao cadastrar o usuário e responsável.' });
+    res.status(500).json({ message: 'Erro ao cadastrar o usuário e responsável.' });
   }
 };
 
@@ -244,7 +244,7 @@ const AtualizarUsuario = async (req, res) => {
       } 
     }
 
-    res.status(500).json({ error: 'Erro ao atualizar o usuário.' });
+    res.status(500).json({ message: 'Erro ao atualizar o usuário.' });
   }
 };
 
@@ -262,7 +262,7 @@ const DeletarUsuario = async (req, res) => {
     await usuario.destroy();
     res.status(200).json({ message: 'Usuário deletado com sucesso.' });
   } catch (error) {
-    res.status(500).json({ error: 'Erro ao deletar o usuário.' });
+    res.status(500).json({ message: 'Erro ao deletar o usuário.' });
   }
 };
 
@@ -290,7 +290,7 @@ const VerUsuario = async (req, res) => {
 
     res.status(200).json(usuario);
   } catch (error) {
-    res.status(500).json({ error: 'Erro ao buscar o usuário.' });
+    res.status(500).json({ message: 'Erro ao buscar o usuário.' });
   }
 };
 
@@ -308,12 +308,12 @@ const VerTodosUsuarios = async (req, res) => {
     });
 
     if (req.user.tipo !== 'admin') {
-      return res.status(403).json({ error: 'Acesso negado.' });
+      return res.status(403).json({ message: 'Acesso negado.' });
     }
 
     res.status(200).json(usuarios);
   } catch (error) {
-    res.status(500).json({ error: 'Erro ao buscar os usuários.' });
+    res.status(500).json({ message: 'Erro ao buscar os usuários.' });
   }
 };
 
@@ -321,11 +321,11 @@ const BuscarUsuarioDinamico = async (req, res) => {
   const { q } = req.query; // O termo de busca passado na URL
 
   if (req.user.tipo !== 'admin') {
-    return res.status(403).json({ error: 'Acesso negado.' });
+    return res.status(403).json({ message: 'Acesso negado.' });
   }
 
   if (!q) {
-    return res.status(400).json({ error: 'Por favor, forneça um termo de busca.' });
+    return res.status(400).json({ message: 'Por favor, forneça um termo de busca.' });
   }
 
   try {
@@ -347,7 +347,7 @@ const BuscarUsuarioDinamico = async (req, res) => {
     res.status(200).json(usuarios);
   } catch (error) {
     console.error('Erro ao buscar usuários:', error);
-    res.status(500).json({ error: 'Erro ao buscar usuários' });
+    res.status(500).json({ message: 'Erro ao buscar usuários' });
   }
 };
 

@@ -145,7 +145,7 @@ const AceitarInteresse = async (req, res) => {
     console.error("Erro ao formalizar a parceria:", error);
     res
       .status(500)
-      .json({ error: `Erro ao formalizar a parceria: ${error.message}` });
+      .json({ message: `Erro ao formalizar a parceria: ${error.message}` });
   }
 };
 
@@ -200,7 +200,7 @@ const AtualizarParceria = async (req, res) => {
       .json({ message: "Parceria atualizado com sucesso", parceria });
   } catch (error) {
     console.error("Erro ao atualizar parceria:", error);
-    res.status(500).json({ error: "Erro ao atualizar parceria." });
+    res.status(500).json({ message: "Erro ao atualizar parceria." });
   }
 };
 
@@ -248,7 +248,7 @@ const DeletarParceria = async (req, res) => {
     res.status(200).json({ message: "Parceria deletado com sucesso." });
   } catch (error) {
     console.error("Erro ao deletar parceria:", error);
-    res.status(500).json({ error: "Erro ao deletar parceria." });
+    res.status(500).json({ message: "Erro ao deletar parceria." });
   }
 };
 
@@ -356,7 +356,7 @@ const ListarParcerias = async (req, res) => {
     res.status(200).json(parcerias);
   } catch (error) {
     console.error("Erro ao listar parcerias:", error);
-    res.status(500).json({ error: "Erro ao listar parcerias." });
+    res.status(500).json({ message: "Erro ao listar parcerias." });
   }
 };
 
@@ -399,7 +399,7 @@ const SelecionarParceriaPorId = async (req, res) => {
     res.status(200).json(parceria);
   } catch (error) {
     console.error("Erro ao buscar parceria:", error);
-    res.status(500).json({ error: "Erro ao buscar parceria." });
+    res.status(500).json({ message: "Erro ao buscar parceria." });
   }
 };
 

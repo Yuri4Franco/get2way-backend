@@ -11,7 +11,7 @@ const CadastrarResponsavel = async (req, res) => {
         res.status(201).json(responsavel);
     } catch (error) {
         console.error('Erro ao criar responsável:', error);
-        res.status(500).json({ error: `Erro ao criar responsável: ${error.message}` });
+        res.status(500).json({ message: `Erro ao criar responsável: ${error.message}` });
     }
 };
 
@@ -21,7 +21,7 @@ const BuscarTodosResponsaveis = async (req, res) => {
         const responsaveis = await Responsavel.findAll();
         res.status(200).json(responsaveis);
     } catch (error) {
-        res.status(500).json({ error: 'Erro ao buscar responsáveis' });
+        res.status(500).json({ message: 'Erro ao buscar responsáveis' });
     }
 };
 
@@ -32,10 +32,10 @@ const BuscarResponsavelPorId = async (req, res) => {
         if (responsavel) {
             res.status(200).json(responsavel);
         } else {
-            res.status(404).json({ error: 'Responsável não encontrado' });
+            res.status(404).json({ message: 'Responsável não encontrado' });
         }
     } catch (error) {
-        res.status(500).json({ error: 'Erro ao buscar responsável' });
+        res.status(500).json({ message: 'Erro ao buscar responsável' });
     }
 };
 
@@ -52,10 +52,10 @@ const AtualizarResponsavel = async (req, res) => {
             await responsavel.save();
             res.status(200).json(responsavel);
         } else {
-            res.status(404).json({ error: 'Responsável não encontrado' });
+            res.status(404).json({ message: 'Responsável não encontrado' });
         }
     } catch (error) {
-        res.status(500).json({ error: 'Erro ao atualizar responsável' });
+        res.status(500).json({ message: 'Erro ao atualizar responsável' });
     }
 };
 
@@ -67,10 +67,10 @@ const DeletarResponsavel = async (req, res) => {
             await responsavel.destroy();
             res.status(200).json({ message: 'Responsável deletado com sucesso' });
         } else {
-            res.status(404).json({ error: 'Responsável não encontrado' });
+            res.status(404).json({ message: 'Responsável não encontrado' });
         }
     } catch (error) {
-        res.status(500).json({ error: 'Erro ao deletar responsável' });
+        res.status(500).json({ message: 'Erro ao deletar responsável' });
     }
 };
 
@@ -122,7 +122,7 @@ const BuscarResponsavelDinamico = async (req, res) => {
       res.status(200).json(responsaveis);
     } catch (error) {
       console.error('Erro ao buscar responsáveis:', error);
-      res.status(500).json({ error: 'Erro ao buscar responsáveis.' });
+      res.status(500).json({ message: 'Erro ao buscar responsáveis.' });
     }
   };
   

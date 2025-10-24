@@ -19,7 +19,7 @@ const CadastrarImpulso = async (req, res) => {
     res.status(201).json(novoImpulso);
   } catch (error) {
     console.error("Erro ao criar Impulso:", error);
-    res.status(500).json({ error: `Erro ao criar Impulso: ${error.message}` });
+    res.status(500).json({ message: `Erro ao criar Impulso: ${error.message}` });
   }
 };
 
@@ -43,7 +43,7 @@ const BuscarTodosImpulsos = async (req, res) => {
     });
     res.status(200).json(impulsos);
   } catch (error) {
-    res.status(500).json({ error: "Erro ao buscar Impulsos" });
+    res.status(500).json({ message: "Erro ao buscar Impulsos" });
   }
 };
 
@@ -54,10 +54,10 @@ const BuscarImpulsoPorId = async (req, res) => {
     if (impulso) {
       res.status(200).json(impulso);
     } else {
-      res.status(404).json({ error: "Impulso não encontrado" });
+      res.status(404).json({ message: "Impulso não encontrado" });
     }
   } catch (error) {
-    res.status(500).json({ error: "Erro ao buscar Impulso" });
+    res.status(500).json({ message: "Erro ao buscar Impulso" });
   }
 };
 
@@ -79,10 +79,10 @@ const AtualizarImpulso = async (req, res) => {
       await impulso.save();
       res.status(200).json(impulso);
     } else {
-      res.status(404).json({ error: "Impulso não encontrado" });
+      res.status(404).json({ message: "Impulso não encontrado" });
     }
   } catch (error) {
-    res.status(500).json({ error: "Erro ao atualizar Impulso" });
+    res.status(500).json({ message: "Erro ao atualizar Impulso" });
   }
 };
 
@@ -96,10 +96,10 @@ const DeletarImpulso = async (req, res) => {
     } else {
       res
         .status(404)
-        .json({ error: "Você não tem permissão para deletar esse impulso" });
+        .json({ message: "Você não tem permissão para deletar esse impulso" });
     }
   } catch (error) {
-    res.status(500).json({ error: "Erro ao deletar Impulso" });
+    res.status(500).json({ message: "Erro ao deletar Impulso" });
   }
 };
 

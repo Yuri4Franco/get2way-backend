@@ -33,7 +33,7 @@ const CadastrarPrograma = async (req, res) => {
       console.log('é empresa');
       const rotaPertenceEmpresa = await verificarRotaDaEmpresa(usuarioLogado.empresa_id, rota_id);
       if (!rotaPertenceEmpresa) {
-        return res.status(403).json({ error: 'Acesso negado. A rota selecionada deve pertencer à sua empresa.' });
+        return res.status(403).json({ message: 'Acesso negado. A rota selecionada deve pertencer à sua empresa.' });
       }
     }
 
@@ -47,7 +47,7 @@ const CadastrarPrograma = async (req, res) => {
     res.status(201).json(programa);
   } catch (error) {
     console.error('Erro ao criar programa:', error);
-    res.status(500).json({ error: `Erro ao criar programa: ${error.message}` });
+    res.status(500).json({ message: `Erro ao criar programa: ${error.message}` });
   }
 };
 
@@ -83,7 +83,7 @@ const BuscarTodosProgramas = async (req, res) => {
       return res.status(200).json(programas);
     }
   } catch (error) {
-    res.status(500).json({ error: 'Erro ao buscar programas' });
+    res.status(500).json({ message: 'Erro ao buscar programas' });
   }
 };
 const SelecionarPrograma = async (req, res) => {
@@ -104,7 +104,7 @@ const SelecionarPrograma = async (req, res) => {
     });
 
     if (!programa) {
-      return res.status(404).json({ error: 'Programa não encontrado' });
+      return res.status(404).json({ message: 'Programa não encontrado' });
     }
 
     console.log("Rota associada ao programa:", programa.Rota);
@@ -114,14 +114,14 @@ const SelecionarPrograma = async (req, res) => {
 
     // Verifica se o usuário é admin ou o proprietário do programa
     if (!isAdmin && !isProprietario) {
-      return res.status(403).json({ error: 'Acesso negado. Você só pode visualizar seus próprios programas.' });
+      return res.status(403).json({ message: 'Acesso negado. Você só pode visualizar seus próprios programas.' });
     }
 
     // Se a verificação passar, retorna o programa
     res.status(200).json(programa);
   } catch (error) {
     console.error('Erro ao selecionar programa:', error);
-    res.status(500).json({ error: 'Erro ao selecionar programa' });
+    res.status(500).json({ message: 'Erro ao selecionar programa' });
   }
 };
 
@@ -142,7 +142,7 @@ const AtualizarPrograma = async (req, res) => {
 
     if (!programa) {
       console.log("Programa não encontrado.");
-      return res.status(404).json({ error: 'Programa não encontrado' });
+      return res.status(404).json({ message: 'Programa não encontrado' });
     }
 
     console.log("Rota associada ao programa:", programa.Rota);
@@ -152,7 +152,7 @@ const AtualizarPrograma = async (req, res) => {
 
     if (!isAdmin && !isProprietario) {
       console.log("Acesso negado. Empresa:", usuarioLogado.empresa_id, "Proprietário do programa:", programa.Rota.empresa_id);
-      return res.status(403).json({ error: 'Acesso negado. Você só pode atualizar seus próprios programas.' });
+      return res.status(403).json({ message: 'Acesso negado. Você só pode atualizar seus próprios programas.' });
     }
 
     // Atualizar o programa com os novos dados
@@ -165,7 +165,7 @@ const AtualizarPrograma = async (req, res) => {
     res.status(200).json(programa);
   } catch (error) {
     console.error('Erro ao atualizar programa:', error);
-    res.status(500).json({ error: 'Erro ao atualizar programa' });
+    res.status(500).json({ message: 'Erro ao atualizar programa' });
   }
 };
 
@@ -185,7 +185,7 @@ const DeletarPrograma = async (req, res) => {
     });
 
     if (!programa) {
-      return res.status(404).json({ error: 'Programa não encontrado' });
+      return res.status(404).json({ message: 'Programa não encontrado' });
     }
 
     console.log("Rota associada ao programa:", programa.Rota);
@@ -194,7 +194,7 @@ const DeletarPrograma = async (req, res) => {
     const isProprietario = programa.Rota.empresa_id === usuarioLogado.empresa_id;
 
     if (!isAdmin && !isProprietario) {
-      return res.status(403).json({ error: 'Acesso negado. Você só pode deletar seus próprios programas.' });
+      return res.status(403).json({ message: 'Acesso negado. Você só pode deletar seus próprios programas.' });
     }
 
     // Deletar o programa
@@ -202,7 +202,7 @@ const DeletarPrograma = async (req, res) => {
     res.status(200).json({ message: 'Programa deletado com sucesso' });
   } catch (error) {
     console.error('Erro ao deletar programa:', error);
-    res.status(500).json({ error: 'Erro ao deletar programa' });
+    res.status(500).json({ message: 'Erro ao deletar programa' });
   }
 };
 
@@ -212,7 +212,7 @@ const BuscarProgramaPorEmpresaId = async (req, res) => {
   try {
     // Verifica se o usuário é admin
     if (tipo !== 'admin') {
-      return res.status(403).json({ error: 'Acesso negado. Apenas administradores podem acessar esta rota.' });
+      return res.status(403).json({ message: 'Acesso negado. Apenas administradores podem acessar esta rota.' });
     }
 
     const programas = await Programa.findAll({
@@ -226,10 +226,10 @@ const BuscarProgramaPorEmpresaId = async (req, res) => {
     if (programas.length > 0) {
       res.status(200).json(programas);
     } else {
-      res.status(404).json({ error: 'Nenhum programa foi encontrado para esta empresa' });
+      res.status(404).json({ message: 'Nenhum programa foi encontrado para esta empresa' });
     }
   } catch (error) {
-    res.status(500).json({ error: `Erro ao buscar rotas por empresa: ${error.message}` });
+    res.status(500).json({ message: `Erro ao buscar rotas por empresa: ${error.message}` });
   }
 };
 

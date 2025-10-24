@@ -25,7 +25,7 @@ const validarPrimeiroAcesso = [
       next();
     } catch (error) {
       console.error('Erro ao validar primeiro acesso:', error);
-      res.status(500).json({ error: 'Erro ao validar primeiro acesso.' });
+      res.status(500).json({ message: 'Erro ao validar primeiro acesso.' });
     }
   }
 ];

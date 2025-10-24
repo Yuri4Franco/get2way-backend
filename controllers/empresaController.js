@@ -18,7 +18,7 @@ const CadastrarEmpresa = async (req, res) => {
     const isAdmin = await VerificarAdmin(usuarioLogado.id);
 
     if (!isAdmin) {
-      return res.status(403).json({ error: 'Acesso negado. Apenas administradores podem cadastrar empresas.' });
+      return res.status(403).json({ message: 'Acesso negado. Apenas administradores podem cadastrar empresas.' });
     }
 
     // Extrai dados da requisição
@@ -67,7 +67,7 @@ const CadastrarEmpresa = async (req, res) => {
         if (err) console.error('Erro ao deletar imagem:', err);
       });
     }
-    res.status(500).json({ error: 'Erro ao cadastrar a empresa.' });
+    res.status(500).json({ message: 'Erro ao cadastrar a empresa.' });
   }
 };
 
@@ -82,7 +82,7 @@ const AtualizarEmpresa = async (req, res) => {
 
     if (!isAdmin) {
       console.log('Acesso negado para usuário não administrador');
-      return res.status(403).json({ error: 'Acesso negado. Apenas administradores podem atualizar empresas.' });
+      return res.status(403).json({ message: 'Acesso negado. Apenas administradores podem atualizar empresas.' });
     }
 
     const { id } = req.params;
@@ -140,7 +140,7 @@ const AtualizarEmpresa = async (req, res) => {
         }
       });
     }
-    res.status(500).json({ error: 'Erro ao atualizar a empresa.' });
+    res.status(500).json({ message: 'Erro ao atualizar a empresa.' });
   }
 };
 
@@ -153,7 +153,7 @@ const DeletarEmpresa = async (req, res) => {
     const isAdmin = await VerificarAdmin(usuarioLogado.id);
 
     if (!isAdmin) {
-      return res.status(403).json({ error: 'Acesso negado. Apenas administradores podem deletar empresas.' });
+      return res.status(403).json({ message: 'Acesso negado. Apenas administradores podem deletar empresas.' });
     }
 
     const { id } = req.params;
@@ -167,7 +167,7 @@ const DeletarEmpresa = async (req, res) => {
     res.status(200).json({ message: 'Empresa deletada com sucesso.' });
   } catch (error) {
     console.error('Erro ao deletar empresa:', error);
-    res.status(500).json({ error: 'Erro ao deletar a empresa.' });
+    res.status(500).json({ message: 'Erro ao deletar a empresa.' });
   }
 };
 
@@ -184,13 +184,13 @@ const ConsultarEmpresaPorId = async (req, res) => {
 
     // Se não for admin, verificar se a empresa é a mesma que a do usuário
     if (usuarioLogado.tipo !== 'admin' && usuarioLogado.empresa_id !== empresa.id) {
-      return res.status(403).json({ error: 'Acesso negado. Você só pode consultar sua própria empresa.' });
+      return res.status(403).json({ message: 'Acesso negado. Você só pode consultar sua própria empresa.' });
     }
 
     res.status(200).json(empresa);
   } catch (error) {
     console.error('Erro ao consultar empresa:', error);
-    res.status(500).json({ error: 'Erro ao consultar a empresa.' });
+    res.status(500).json({ message: 'Erro ao consultar a empresa.' });
   }
 };
 
@@ -202,14 +202,14 @@ const ConsultarTodasEmpresas = async (req, res) => {
     const isAdmin = await VerificarAdmin(usuarioLogado.id);
 
     if (!isAdmin) {
-      return res.status(403).json({ error: 'Acesso negado. Apenas administradores podem visualizar todas as empresas.' });
+      return res.status(403).json({ message: 'Acesso negado. Apenas administradores podem visualizar todas as empresas.' });
     }
 
     const empresas = await Empresa.findAll();
     res.status(200).json(empresas);
   } catch (error) {
     console.error('Erro ao consultar empresas:', error);
-    res.status(500).json({ error: 'Erro ao consultar as empresas.' });
+    res.status(500).json({ message: 'Erro ao consultar as empresas.' });
   }
 };
 

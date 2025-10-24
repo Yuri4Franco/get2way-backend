@@ -18,7 +18,7 @@ const CadastrarIct = async (req, res) => {
     const isAdmin = await VerificarAdmin(usuarioLogado.id);
 
     if (!isAdmin) {
-      return res.status(403).json({ error: 'Acesso negado. Apenas administradores podem cadastrar ICTs.' });
+      return res.status(403).json({ message: 'Acesso negado. Apenas administradores podem cadastrar ICTs.' });
     }
 
     const { nome, cnpj, razao_social, endereco, telefone, email, site } = req.body;
@@ -65,7 +65,7 @@ const CadastrarIct = async (req, res) => {
       }
     }
 
-    res.status(500).json({ error: `Erro ao criar ICT: ${error.message}` });
+    res.status(500).json({ message: `Erro ao criar ICT: ${error.message}` });
   }
 };
 
@@ -77,7 +77,7 @@ const AtualizarIct = async (req, res) => {
     const isAdmin = await VerificarAdmin(usuarioLogado.id);
 
     if (!isAdmin) {
-      return res.status(403).json({ error: 'Acesso negado. Apenas administradores podem atualizar ICTs.' });
+      return res.status(403).json({ message: 'Acesso negado. Apenas administradores podem atualizar ICTs.' });
     }
 
     const { nome, cnpj, razao_social, endereco, telefone, email, site } = req.body;
@@ -85,7 +85,7 @@ const AtualizarIct = async (req, res) => {
 
     const ict = await Ict.findByPk(req.params.id);
     if (!ict) {
-      return res.status(404).json({ error: 'ICT não encontrada' });
+      return res.status(404).json({ message: 'ICT não encontrada' });
     }
 
     // Se uma nova imagem de perfil foi enviada, remover a anterior
@@ -122,7 +122,7 @@ const AtualizarIct = async (req, res) => {
       });
     }
 
-    res.status(500).json({ error: 'Erro ao atualizar ICT' });
+    res.status(500).json({ message: 'Erro ao atualizar ICT' });
   }
 };
 
@@ -135,13 +135,13 @@ const BuscarTodasIcts = async (req, res) => {
     const isAdmin = await VerificarAdmin(usuarioLogado.id);
 
     if (!isAdmin) {
-      return res.status(403).json({ error: 'Acesso negado. Apenas administradores podem visualizar todas as ICTs.' });
+      return res.status(403).json({ message: 'Acesso negado. Apenas administradores podem visualizar todas as ICTs.' });
     }
 
     const icts = await Ict.findAll();
     res.status(200).json(icts);
   } catch (error) {
-    res.status(500).json({ error: 'Erro ao buscar ICTs' });
+    res.status(500).json({ message: 'Erro ao buscar ICTs' });
   }
 };
 
@@ -153,17 +153,17 @@ const BuscarIctPorId = async (req, res) => {
     const isAdmin = await VerificarAdmin(usuarioLogado.id);
 
     if (!isAdmin) {
-      return res.status(403).json({ error: 'Acesso negado. Apenas administradores podem visualizar uma ICT.' });
+      return res.status(403).json({ message: 'Acesso negado. Apenas administradores podem visualizar uma ICT.' });
     }
 
     const ict = await Ict.findByPk(req.params.id);
     if (ict) {
       res.status(200).json(ict);
     } else {
-      res.status(404).json({ error: 'ICT não encontrada' });
+      res.status(404).json({ message: 'ICT não encontrada' });
     }
   } catch (error) {
-    res.status(500).json({ error: 'Erro ao buscar ICT' });
+    res.status(500).json({ message: 'Erro ao buscar ICT' });
   }
 };
 
@@ -175,7 +175,7 @@ const DeletarIct = async (req, res) => {
     const isAdmin = await VerificarAdmin(usuarioLogado.id);
 
     if (!isAdmin) {
-      return res.status(403).json({ error: 'Acesso negado. Apenas administradores podem deletar ICTs.' });
+      return res.status(403).json({ message: 'Acesso negado. Apenas administradores podem deletar ICTs.' });
     }
 
     const ict = await Ict.findByPk(req.params.id);
@@ -191,10 +191,10 @@ const DeletarIct = async (req, res) => {
       await ict.destroy();
       res.status(200).json({ message: 'ICT deletada com sucesso' });
     } else {
-      res.status(404).json({ error: 'ICT não encontrada' });
+      res.status(404).json({ message: 'ICT não encontrada' });
     }
   } catch (error) {
-    res.status(500).json({ error: 'Erro ao deletar ICT' });
+    res.status(500).json({ message: 'Erro ao deletar ICT' });
   }
 };
 
