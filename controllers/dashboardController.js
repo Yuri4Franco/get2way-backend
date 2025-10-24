@@ -32,19 +32,19 @@ const GetData = async (req, res) => {
     const [visualizacoesMes] = await sequelize.query(`
       SELECT COUNT(*) as total 
       FROM project_views 
-      WHERE MONTH(viewed_at) = MONTH(CURRENT_DATE()) 
-      AND YEAR(viewed_at) = YEAR(CURRENT_DATE())
+      WHERE MONTH(CONVERT_TZ(viewed_at, '+00:00', '-03:00')) = MONTH(CONVERT_TZ(NOW(), '+00:00', '-03:00'))
+      AND YEAR(CONVERT_TZ(viewed_at, '+00:00', '-03:00')) = YEAR(CONVERT_TZ(NOW(), '+00:00', '-03:00'))
     `);
 
     // 5. Visualizações por dia da semana (última semana)
     const [viewsByWeekday] = await sequelize.query(`
       SELECT 
-        DAYOFWEEK(viewed_at) as day_of_week,
+        DAYOFWEEK(CONVERT_TZ(viewed_at, '+00:00', '-03:00')) as day_of_week,
         COUNT(*) as views
       FROM project_views
-      WHERE viewed_at >= DATE_SUB(CURRENT_DATE(), INTERVAL 7 DAY)
-      GROUP BY DAYOFWEEK(viewed_at)
-      ORDER BY DAYOFWEEK(viewed_at)
+      WHERE CONVERT_TZ(viewed_at, '+00:00', '-03:00') >= DATE_SUB(CONVERT_TZ(NOW(), '+00:00', '-03:00'), INTERVAL 7 DAY)
+      GROUP BY DAYOFWEEK(CONVERT_TZ(viewed_at, '+00:00', '-03:00'))
+      ORDER BY DAYOFWEEK(CONVERT_TZ(viewed_at, '+00:00', '-03:00'))
     `);
 
     // Mapear dias da semana (MySQL: 1=Dom, 2=Seg, 3=Ter...)
@@ -65,6 +65,8 @@ const GetData = async (req, res) => {
       FROM projetos p
       INNER JOIN ofertas o ON o.projeto_id = p.id
       INNER JOIN interesses i ON i.oferta_id = o.id
+      WHERE MONTH(CONVERT_TZ(i.createdAt, '+00:00', '-03:00')) = MONTH(CONVERT_TZ(NOW(), '+00:00', '-03:00'))
+      AND YEAR(CONVERT_TZ(i.createdAt, '+00:00', '-03:00')) = YEAR(CONVERT_TZ(NOW(), '+00:00', '-03:00'))
       GROUP BY p.id, p.nome
       ORDER BY proposals DESC
       LIMIT 5
