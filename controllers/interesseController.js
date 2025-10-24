@@ -288,6 +288,25 @@ const ListarInteresses = async (req, res) => {
     // Caso o usuário seja um ICT
     if (usuarioLogado.tipo === "ict") {
       whereConditions = { usuario_id: usuarioLogado.id }; // Apenas os interesses criados por este usuário
+      includeOptions = [
+        {
+          model: Oferta,
+          as: "Oferta",
+          include: {
+            model: Projeto,
+            include: {
+              model: Programa,
+              include: {
+                model: Rota,
+                as: "Rota",
+                include: {
+                  model: Empresa,
+                },
+              },
+            },
+          },
+        },
+      ];
     }
 
     // Caso o usuário seja uma empresa (para gerenciar interesses em seus projetos)
