@@ -192,7 +192,7 @@ const AtualizarProjeto = async (req, res) => {
         .status(400)
         .json({
           message:
-            'Não é permitido atualizar projetos que não estão com status "NÃO PÚBLICADO".',
+            'Não é permitido atualizar projetos publicados.',
         });
     }
 

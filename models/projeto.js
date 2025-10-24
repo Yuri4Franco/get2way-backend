@@ -31,6 +31,7 @@ module.exports = (sequelize, DataTypes) => {
     trl: DataTypes.INTEGER,
     acatech: DataTypes.INTEGER,
     prioridade: DataTypes.STRING,
+    estilo: DataTypes.STRING,
     justificativas: DataTypes.STRING,
     objsmart: DataTypes.STRING,
     beneficios: DataTypes.STRING,
