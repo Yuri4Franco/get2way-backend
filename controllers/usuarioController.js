@@ -167,7 +167,7 @@ const CadastrarUsuario = async (req, res) => {
       
       if (field === 'email') {
         return res.status(409).json({ 
-          error: 'Este e-mail já é usado por outro usuário' 
+          message: 'Este e-mail já é usado por outro usuário' 
         });
       } 
     }
@@ -239,7 +239,7 @@ const AtualizarUsuario = async (req, res) => {
       
       if (field === 'email') {
         return res.status(409).json({ 
-          error: 'Este e-mail já é usado por outro usuário' 
+          message: 'Este e-mail já é usado por outro usuário' 
         });
       } 
     }

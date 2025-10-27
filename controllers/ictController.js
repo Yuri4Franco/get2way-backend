@@ -21,14 +21,16 @@ const CadastrarIct = async (req, res) => {
       return res.status(403).json({ message: 'Acesso negado. Apenas administradores podem cadastrar ICTs.' });
     }
 
-    const { nome, cnpj, razao_social, endereco, telefone, email, site } = req.body;
+    const { nome, cnpj, razao_social, endereco, uf, cidade, telefone, email, site } = req.body;
     const fotoPerfilPath = req.file ? `/uploads/fotos/${req.file.filename}` : null;
 
     const novaIct = await Ict.create({
       nome,
-      cnpj,
-      razao_social,
+      cnpj: cnpj || null,
+      razao_social: razao_social || null,
       endereco,
+      uf,
+      cidade,
       telefone,
       email,
       site,
@@ -54,18 +56,18 @@ const CadastrarIct = async (req, res) => {
       
       if (field === 'razao_social') {
         return res.status(409).json({ 
-          error: 'Esta razão social já está cadastrada para outra ICT.' 
+          message: 'Esta razão social já está cadastrada para outra ICT.' 
         });
       } 
       
       if (field === 'cnpj') {
         return res.status(409).json({ 
-          error: 'Este CNPJ já está cadastrado no sistema para outra ICT.' 
+          message: 'Este CNPJ já está cadastrado no sistema para outra ICT.' 
         });
       }
     }
 
-    res.status(500).json({ message: `Erro ao criar ICT: ${error.message}` });
+    res.status(500).json({ message: "Ocorreu um erro ao criar ICT." });
   }
 };
 
@@ -80,7 +82,7 @@ const AtualizarIct = async (req, res) => {
       return res.status(403).json({ message: 'Acesso negado. Apenas administradores podem atualizar ICTs.' });
     }
 
-    const { nome, cnpj, razao_social, endereco, telefone, email, site } = req.body;
+    const { nome, cnpj, razao_social, endereco, uf, cidade, telefone, email, site } = req.body;
     const novaFotoPerfilPath = req.file ? `/uploads/fotos/${req.file.filename}` : null;
 
     const ict = await Ict.findByPk(req.params.id);
@@ -99,9 +101,11 @@ const AtualizarIct = async (req, res) => {
     // Atualizar campos da ICT
     await ict.update({
       nome,
-      cnpj,
-      razao_social,
+      cnpj: cnpj || ict.cnpj,
+      razao_social: razao_social || ict.razao_social,
       endereco,
+      uf,
+      cidade,
       telefone,
       email,
       site,

@@ -26,7 +26,6 @@ const CadastrarPrograma = async (req, res) => {
   try {
     // Verificar se o usuário é admin
     const isAdmin = await VerificarAdmin(usuarioLogado.id);
-    console.log('Verificação de admin concluída:', isAdmin);
 
     // Se o usuário for empresa, verificar se a rota pertence à empresa dele antes de cadastrar o programa
     if (!isAdmin) {

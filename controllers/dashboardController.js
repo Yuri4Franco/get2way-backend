@@ -93,8 +93,7 @@ const GetData = async (req, res) => {
   } catch (error) {
     console.error("Erro ao buscar dados do dashboard:", error);
     res.status(500).json({
-      error: "Erro ao buscar dados do dashboard",
-      message: error.message,
+      message: "Erro ao buscar dados do dashboard",
     });
   }
 };

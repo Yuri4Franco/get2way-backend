@@ -256,6 +256,7 @@ const DeletarParceria = async (req, res) => {
 const ListarParcerias = async (req, res) => {
   const usuarioLogado = req.user;
 
+
   try {
     let parcerias;
 
@@ -263,19 +264,27 @@ const ListarParcerias = async (req, res) => {
       parcerias = await Parceria.findAll({
         include: {
           model: Interesse,
+          required: true,
           include: [
             {
               model: Oferta,
               as: "Oferta",
+              required: true,
               include: {
                 model: Projeto,
+                required: true,
                 include: {
                   model: Programa,
+                  required: true,
                   include: {
                     model: Rota,
                     as: "Rota",
-                    where: { empresa_id: usuarioLogado.empresa_id },
-                    include: { model: Empresa },
+                    required: true,
+                    include: {
+                      model: Empresa,
+                      required: true,
+                      where: { id: usuarioLogado.empresa_id },
+                    },
                   },
                 },
               },
@@ -295,6 +304,7 @@ const ListarParcerias = async (req, res) => {
         include: {
           model: Interesse,
           where: { usuario_id: usuarioLogado.id },
+          required: true,
           include: [
             {
               model: Oferta,
