@@ -10,11 +10,9 @@ module.exports = {
     await queryInterface.bulkInsert('usuarios', [
       {
         nome: 'Administrador',
-        email: 'admin@example.com',
+        email: 'institutoagregarrs@gmail.com',
         senha,
         tipo: 'admin',
-        endereco: 'Endereço Admin',
-        telefone: '123456789',
         primeiro_acesso: 1,
         createdAt: dateNow,
         updatedAt: dateNow,
@@ -23,14 +21,14 @@ module.exports = {
 
     // Consultar IDs criados para associação
     const usuarios = await queryInterface.sequelize.query(
-      `SELECT id, email FROM usuarios WHERE email IN ('admin@example.com');`,
+      `SELECT id, email FROM usuarios WHERE email IN ('institutoagregarrs@gmail.com');`,
       { type: Sequelize.QueryTypes.SELECT }
     );
 
     // Associar responsaveis
     const responsaveis = usuarios.map((usuario) => {
       let cargo = '';
-      if (usuario.email === 'admin@example.com') cargo = 'Administrador';
+      if (usuario.email === 'institutoagregarrs@gmail.com') cargo = 'Administrador';
 
       return {
         usuario_id: usuario.id,
@@ -49,14 +47,14 @@ module.exports = {
     // Deletar responsáveis associados
     await queryInterface.bulkDelete(
       'responsaveis',
-      { usuario_id: Sequelize.literal(`(SELECT id FROM usuarios WHERE email IN ('admin@example.com'))`) },
+      { usuario_id: Sequelize.literal(`(SELECT id FROM usuarios WHERE email IN ('institutoagregarrs@gmail.com'))`) },
       {}
     );
 
     // Deletar usuários
     await queryInterface.bulkDelete(
       'usuarios',
-      { email: { [Sequelize.Op.in]: ['admin@example.com'] } },
+      { email: { [Sequelize.Op.in]: ['institutoagregarrs@gmail.com'] } },
       {}
     );
   },
