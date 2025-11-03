@@ -44,7 +44,7 @@ const SelecionarProjeto = async (req, res) => {
       include: [
         {
           model: Programa,
-          include: { model: Rota, as: "Rota" },
+          include: { model: Rota, as: "Rota", include: { model: Empresa } },
         },
         {
           model: Impulso,
@@ -88,9 +88,8 @@ const SelecionarProjeto = async (req, res) => {
 
     // criando view pro projeto
     await ProjectsViews.create({
-      project_id: projeto.id
+      project_id: projeto.id,
     });
-    
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Erro ao buscar o projeto." });
@@ -188,12 +187,9 @@ const AtualizarProjeto = async (req, res) => {
 
     // Verifica se o status do projeto permite atualização
     if (projeto.status !== "NÃO PÚBLICADO") {
-      return res
-        .status(400)
-        .json({
-          message:
-            'Não é permitido atualizar projetos publicados.',
-        });
+      return res.status(400).json({
+        message: "Não é permitido atualizar projetos publicados.",
+      });
     }
 
     // Se houver um novo arquivo, exclui o antigo
@@ -264,12 +260,10 @@ const DeletarProjeto = async (req, res) => {
       usuarioLogado.tipo !== "admin" &&
       projeto.Programa.Rota.empresa_id !== usuarioLogado.empresa_id
     ) {
-      return res
-        .status(403)
-        .json({
-          message:
-            "Acesso negado. Você não tem permissão para deletar este projeto.",
-        });
+      return res.status(403).json({
+        message:
+          "Acesso negado. Você não tem permissão para deletar este projeto.",
+      });
     }
 
     await projeto.destroy();
